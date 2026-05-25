@@ -410,7 +410,7 @@ body.listener-mode .console-nav { max-width: 320px }
 <script>
 // ===== MODE DETECTION =====
 const URL_MODE = new URLSearchParams(window.location.search).get('mode');
-const IS_LISTENER = URL_MODE === 'listener';
+const IS_LISTENER = URL_MODE !== 'admin';
 if (IS_LISTENER) document.body.classList.add('listener-mode');
 
 // ===== INDEXED DB =====
