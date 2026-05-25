@@ -424,7 +424,13 @@ body.listener-mode .tab-bar { max-width: 320px }
 <script>
 // ===== MODE DETECTION =====
 const URL_MODE = new URLSearchParams(window.location.search).get('mode');
-const IS_LISTENER = URL_MODE !== 'admin';
+const ADMIN_PASS = 'TYRELMMUSIC';
+const IS_LISTENER = URL_MODE !== 'admin' || localStorage.getItem('tyrelm_admin_auth') !== '1';
+if (URL_MODE === 'admin' && localStorage.getItem('tyrelm_admin_auth') !== '1') {
+  var pwd = prompt('Enter admin password:');
+  if (pwd === ADMIN_PASS) { localStorage.setItem('tyrelm_admin_auth', '1'); location.reload(); }
+  else { window.location.href = window.location.pathname; }
+}
 if (IS_LISTENER) document.body.classList.add('listener-mode');
 
 // ===== FIREBASE CONFIG =====
