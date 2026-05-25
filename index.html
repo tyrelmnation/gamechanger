@@ -424,7 +424,7 @@ body.listener-mode .tab-bar { max-width: 320px }
 <script>
 // ===== MODE DETECTION =====
 const URL_MODE = new URLSearchParams(window.location.search).get('mode');
-const ADMIN_HASH = '400bd7f5dbf84c358e984196833a675fc363fcbacbcf15fe48694d384b3cae38';
+const ADMIN_HASH = '2dfdea7f516c851e65dfa53106bcbd22044def82c1691265bc461bc2869f5b4f';
 const IS_LISTENER = URL_MODE !== 'admin' || localStorage.getItem('tyrelm_admin_auth') !== '1';
 if (URL_MODE === 'admin' && localStorage.getItem('tyrelm_admin_auth') !== '1') {
   var pwd = prompt('Enter admin password:');
