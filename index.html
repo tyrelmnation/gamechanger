@@ -8,6 +8,8 @@
 <link rel="manifest" href="manifest.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -391,7 +393,7 @@ body.listener-mode .console-nav { max-width: 320px }
     <div class="dash-grid">
       <div class="dash-card"><div class="num" id="statTracks">0</div><div class="lbl">Tracks</div></div>
       <div class="dash-card"><div class="num" id="statUploads">0</div><div class="lbl">Loaded</div></div>
-      <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div></div>
+      <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div><div id="firebaseBadge" style="font-size:7px;color:#555;font-family:monospace;margin-top:2px">local only</div></div>
     </div>
     <div class="dash-settings">
       <div class="set-row"><div><div class="lbl">Auto-advance</div><div class="desc">Play next track automatically</div></div><div class="toggle-sw on" id="togAuto"></div></div>
@@ -412,6 +414,55 @@ body.listener-mode .console-nav { max-width: 320px }
 const URL_MODE = new URLSearchParams(window.location.search).get('mode');
 const IS_LISTENER = URL_MODE !== 'admin';
 if (IS_LISTENER) document.body.classList.add('listener-mode');
+
+// ===== FIREBASE CONFIG (paste your config below) =====
+// 1. Go to https://console.firebase.google.com/ and create a project
+// 2. Add a Web App to get the config object
+// 3. In Firestore Database, create collection called 'plays'
+// 4. Set security rules to: allow read, write: if true;
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+let FIRESTORE_ENABLED = false;
+let FIRESTORE_DB = null;
+
+if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
+  try {
+    firebase.initializeApp(FIREBASE_CONFIG);
+    FIRESTORE_DB = firebase.firestore();
+    FIRESTORE_ENABLED = true;
+    const badge = document.getElementById('firebaseBadge');
+    if (badge) badge.textContent = 'live';
+  } catch (e) { console.log("Firebase init failed:", e); }
+}
+
+function trackPlay(title) {
+  if (!FIRESTORE_ENABLED || !title) return;
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+  try {
+    FIRESTORE_DB.collection('plays').doc(slug).set({
+      title: title,
+      count: firebase.firestore.FieldValue.increment(1),
+      lastPlayed: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch(e) {}
+}
+
+function getFirebasePlays() {
+  if (!FIRESTORE_ENABLED) return Promise.resolve(null);
+  return FIRESTORE_DB.collection('plays').get().then(snap => {
+    let total = 0;
+    snap.forEach(doc => total += (doc.data().count || 0));
+    return total;
+  }).catch(() => null);
+}
+// ===== END FIREBASE =====
 
 // ===== INDEXED DB =====
 const DB = 'tyrelm_console_v7';
@@ -509,6 +560,7 @@ function playIt(src, title, el, tid, media) {
   document.getElementById('reelL').className='tape-dot spin'; document.getElementById('reelR').className='tape-dot spin';
   document.getElementById('btnPlayPause').textContent='\u25A0';
   if(tid) { getAllTracks().then(all=>{const t=all.find(x=>x.id===tid);if(t){t.plays=(t.plays||0)+1;updateTrack(t.id,t);}}); }
+  trackPlay(title);
 function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0').substring(0,5)}
   a.ontimeupdate = () => { if(a.duration) { document.getElementById('screenBarFill').style.width = (a.currentTime/a.duration*100)+'%'; document.getElementById('screenTime').textContent = fmtTime(a.currentTime)+' / '+fmtTime(a.duration); } };
   if(syncInterval) clearInterval(syncInterval);
@@ -1062,7 +1114,13 @@ function updateStats() {
   getAllTracks().then(u => {
     document.getElementById('statTracks').textContent = u.length;
     document.getElementById('statUploads').textContent = u.length;
-    document.getElementById('statPlays').textContent = playCount;
+    if (FIRESTORE_ENABLED) {
+      getFirebasePlays().then(n => {
+        if (n !== null) document.getElementById('statPlays').textContent = n;
+      });
+    } else {
+      document.getElementById('statPlays').textContent = playCount;
+    }
   });
 }
 
