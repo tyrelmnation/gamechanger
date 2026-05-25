@@ -587,17 +587,20 @@ function setUnlocked(plan) {
 }
 
 function checkAccess() {
-  if (IS_LISTENER) {
-    const unlock = getUnlockStatus();
-    const overlay = document.getElementById('lockOverlay');
-    const unlockNav = document.querySelector('.nav-unlock');
-    if (!unlock) {
-      overlay.classList.remove('hidden');
-      if (unlockNav) unlockNav.style.display = 'block';
-    } else {
-      overlay.classList.add('hidden');
-      if (unlockNav) unlockNav.style.display = 'none';
-    }
+  const overlay = document.getElementById('lockOverlay');
+  const unlockNav = document.querySelector('.nav-unlock');
+  if (!IS_LISTENER) {
+    overlay.classList.add('hidden');
+    if (unlockNav) unlockNav.style.display = 'none';
+    return;
+  }
+  const unlock = getUnlockStatus();
+  if (!unlock) {
+    overlay.classList.remove('hidden');
+    if (unlockNav) unlockNav.style.display = 'block';
+  } else {
+    overlay.classList.add('hidden');
+    if (unlockNav) unlockNav.style.display = 'none';
   }
 }
 
@@ -608,8 +611,10 @@ function doUnlock(code, fromPage) {
   if (!clean) { err.textContent = 'Enter a code'; return; }
   // Master code — works offline, never expires
   if (clean === '4RE@LM') {
+    err.textContent = 'Master code accepted!';
+    err.style.color = 'var(--green)';
     setUnlocked('1month');
-    setTimeout(function() { location.reload(); }, 300);
+    setTimeout(function() { location.reload(); }, 1000);
     return;
   }
   if (!FB_ENABLED) { err.textContent = 'Database not connected'; return; }
