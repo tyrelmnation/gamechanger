@@ -424,12 +424,18 @@ body.listener-mode .tab-bar { max-width: 320px }
 <script>
 // ===== MODE DETECTION =====
 const URL_MODE = new URLSearchParams(window.location.search).get('mode');
-const ADMIN_PASS = 'TYRELMMUSIC';
+const ADMIN_HASH = '400bd7f5dbf84c358e984196833a675fc363fcbacbcf15fe48694d384b3cae38';
 const IS_LISTENER = URL_MODE !== 'admin' || localStorage.getItem('tyrelm_admin_auth') !== '1';
 if (URL_MODE === 'admin' && localStorage.getItem('tyrelm_admin_auth') !== '1') {
   var pwd = prompt('Enter admin password:');
-  if (pwd === ADMIN_PASS) { localStorage.setItem('tyrelm_admin_auth', '1'); location.reload(); }
-  else { window.location.href = window.location.pathname; }
+  if (pwd) {
+    crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd)).then(function(buf) {
+      var arr = Array.from(new Uint8Array(buf));
+      var hash = arr.map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
+      if (hash === ADMIN_HASH) { localStorage.setItem('tyrelm_admin_auth', '1'); location.reload(); }
+      else { window.location.href = window.location.pathname; }
+    });
+  } else { window.location.href = window.location.pathname; }
 }
 if (IS_LISTENER) document.body.classList.add('listener-mode');
 
