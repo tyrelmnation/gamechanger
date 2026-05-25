@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/intasend-inlinejs-sdk@4.0.5/build/intasend-inline.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -307,9 +308,9 @@ body.listener-mode .console-nav { max-width: 320px }
     <button id="unlockBtn">Unlock</button>
     <div class="lock-error" id="unlockError"></div>
     <div class="lock-buy" style="display:flex;flex-direction:column;gap:6px">
-      <a id="lockSellyDay" href="#" target="_blank" rel="noopener" style="display:block;padding:10px;background:var(--gold);color:var(--bg);border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px">Buy 1 Day — 20 KES</a>
-      <a id="lockSellyWeek" href="#" target="_blank" rel="noopener" style="display:block;padding:10px;background:var(--gold);color:var(--bg);border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px">Buy 1 Week — 50 KES</a>
-      <a id="lockSellyMonth" href="#" target="_blank" rel="noopener" style="display:block;padding:10px;background:var(--gold);color:var(--bg);border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px">Buy 1 Month — 100 KES</a>
+      <button class="pay-btn" data-plan="1day" data-amount="20" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Day — 20 KES</button>
+      <button class="pay-btn" data-plan="1week" data-amount="50" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Week — 50 KES</button>
+      <button class="pay-btn" data-plan="1month" data-amount="100" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Month — 100 KES</button>
     </div>
   </div>
 </div>
@@ -388,10 +389,11 @@ body.listener-mode .console-nav { max-width: 320px }
       &#8226; 1 Month — 100 KES<br>
     </div>
     <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-      <a id="sellyDayLink" href="#" target="_blank" rel="noopener" style="display:block;padding:10px;background:var(--gold);color:var(--bg);border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px">Buy 1 Day — 20 KES</a>
-      <a id="sellyWeekLink" href="#" target="_blank" rel="noopener" style="display:block;padding:10px;background:var(--gold);color:var(--bg);border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px">Buy 1 Week — 50 KES</a>
-      <a id="sellyMonthLink" href="#" target="_blank" rel="noopener" style="display:block;padding:10px;background:var(--gold);color:var(--bg);border-radius:4px;text-decoration:none;font-size:12px;font-weight:700;letter-spacing:1px">Buy 1 Month — 100 KES</a>
+      <button class="pay-btn" data-plan="1day" data-amount="20" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Day — 20 KES</button>
+      <button class="pay-btn" data-plan="1week" data-amount="50" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Week — 50 KES</button>
+      <button class="pay-btn" data-plan="1month" data-amount="100" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Month — 100 KES</button>
     </div>
+    <div style="margin-top:8px;font-size:8px;color:var(--dim);font-family:monospace" id="payStatus"></div>
   </div>
 </div>
 
@@ -478,11 +480,10 @@ body.listener-mode .console-nav { max-width: 320px }
       <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div><div id="firebaseBadge" style="font-size:7px;color:#555;font-family:monospace;margin-top:2px">local only</div></div>
     </div>
     <div class="code-gen nav-admin">
-      <h3>&#128179; Selly.gg Product Links</h3>
-      <input id="sellyDayUrl" type="url" placeholder="1 Day product URL" style="width:100%;padding:8px;background:#0a0a0a;border:1px solid #222;color:var(--text);border-radius:3px;font-size:10px;margin-bottom:4px;font-family:inherit">
-      <input id="sellyWeekUrl" type="url" placeholder="1 Week product URL" style="width:100%;padding:8px;background:#0a0a0a;border:1px solid #222;color:var(--text);border-radius:3px;font-size:10px;margin-bottom:4px;font-family:inherit">
-      <input id="sellyMonthUrl" type="url" placeholder="1 Month product URL" style="width:100%;padding:8px;background:#0a0a0a;border:1px solid #222;color:var(--text);border-radius:3px;font-size:10px;margin-bottom:4px;font-family:inherit">
-      <button id="sellySaveBtn" style="width:100%;padding:8px;background:var(--gold);color:var(--bg);border:none;border-radius:3px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:10px">Save Links</button>
+      <h3>&#128179; IntaSend Setup</h3>
+      <input id="intasendKey" type="text" placeholder="Publishable Key (from intasend.com)" style="width:100%;padding:8px;background:#0a0a0a;border:1px solid #222;color:var(--text);border-radius:3px;font-size:10px;margin-bottom:4px;font-family:inherit">
+      <button id="intasendSaveBtn" style="width:100%;padding:8px;background:var(--gold);color:var(--bg);border:none;border-radius:3px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:10px">Save Key</button>
+      <div style="font-size:8px;color:var(--dim);font-family:monospace;padding:4px 0"><a href="https://payment.intasend.com/account/signup/" target="_blank" style="color:var(--gold)">Sign up at IntaSend</a> → get your publishable key from Settings</div>
     </div>
     <div class="code-gen nav-admin">
       <h3>&#128273; Generate Unlock Codes</h3>
@@ -1272,40 +1273,151 @@ if (accessUnlockInput) {
   });
 }
 
-// Selly.gg links
-var sellyLinks = {};
-try { sellyLinks = JSON.parse(localStorage.getItem('tyrelm_selly')) || {}; } catch(e) {}
+// IntaSend payment
+var intasendKey = localStorage.getItem('tyrelm_intasend_key') || '';
+document.getElementById('intasendKey').value = intasendKey;
 
-function updateSellyLinks() {
-  var links = [
-    { id: 'lockSellyDay', url: sellyLinks.day || 'https://selly.gg/' },
-    { id: 'lockSellyWeek', url: sellyLinks.week || 'https://selly.gg/' },
-    { id: 'lockSellyMonth', url: sellyLinks.month || 'https://selly.gg/' },
-    { id: 'sellyDayLink', url: sellyLinks.day || 'https://selly.gg/' },
-    { id: 'sellyWeekLink', url: sellyLinks.week || 'https://selly.gg/' },
-    { id: 'sellyMonthLink', url: sellyLinks.month || 'https://selly.gg/' }
-  ];
-  links.forEach(function(l) {
-    var el = document.getElementById(l.id);
-    if (el) el.href = l.url;
+document.getElementById('intasendSaveBtn').addEventListener('click', function() {
+  intasendKey = document.getElementById('intasendKey').value.trim();
+  localStorage.setItem('tyrelm_intasend_key', intasendKey);
+  alert('IntaSend key saved!');
+});
+
+function startPayment(plan, amount, btn) {
+  var statusEl = document.getElementById('payStatus');
+  if (!statusEl) statusEl = document.getElementById('unlockError');
+  if (!intasendKey) { statusEl.textContent = 'Set IntaSend key in Console first'; return; }
+  if (typeof window.IntaSend === 'undefined') { statusEl.textContent = 'IntaSend SDK not loaded'; return; }
+  btn.textContent = 'Processing...'; btn.disabled = true;
+  var payer = new window.IntaSend({
+    publicAPIKey: intasendKey,
+    live: true
   });
-  // Fill admin inputs
-  ['day','week','month'].forEach(function(k) {
-    var inp = document.getElementById('selly'+k.charAt(0).toUpperCase()+k.slice(1)+'Url');
-    if (inp) inp.value = sellyLinks[k] || '';
+  payer.run({
+    amount: amount,
+    currency: "KES",
+    email: "customer@gamechanger.app",
+    first_name: "Game",
+    last_name: "Changer",
+    country: "KE"
+  })
+  .on("COMPLETE", function(resp) {
+    // Payment succeeded - assign a code
+    var code = generateAndAssignCode(plan);
+    if (code) {
+      statusEl.textContent = 'Payment confirmed! Your code: ' + code;
+      statusEl.style.color = 'var(--green)';
+    } else {
+      statusEl.textContent = 'Payment confirmed! No codes available. Contact admin.';
+      statusEl.style.color = 'var(--gold)';
+    }
+    btn.textContent = 'Paid!';
+  })
+  .on("FAILED", function() {
+    statusEl.textContent = 'Payment failed or cancelled. Try again.';
+    statusEl.style.color = '#ff6b6b';
+    btn.textContent = 'Buy 1 ' + (plan==='1day'?'Day':plan==='1week'?'Week':'Month') + ' — ' + amount + ' KES';
+    btn.disabled = false;
+  })
+  .on("IN-PROGRESS", function() {
+    statusEl.textContent = 'Check your phone for M-Pesa prompt...';
+    statusEl.style.color = 'var(--gold)';
   });
 }
-updateSellyLinks();
 
-document.getElementById('sellySaveBtn').addEventListener('click', function() {
-  sellyLinks = {
-    day: document.getElementById('sellyDayUrl').value.trim() || '',
-    week: document.getElementById('sellyWeekUrl').value.trim() || '',
-    month: document.getElementById('sellyMonthUrl').value.trim() || ''
-  };
-  localStorage.setItem('tyrelm_selly', JSON.stringify(sellyLinks));
-  updateSellyLinks();
-  alert('Selly links saved!');
+function generateAndAssignCode(plan) {
+  if (!FB_ENABLED) return null;
+  // Find an unused code in Firebase for this plan
+  var ref = RTDB.ref('codes');
+  var result = null;
+  ref.orderByChild('used').equalTo(false).limitToFirst(1).once('value', function(snap) {
+    var found = null;
+    snap.forEach(function(child) {
+      if (child.val().plan === plan) {
+        found = child.key;
+      }
+    });
+    if (found) {
+      ref.child(found).update({ used: true, usedAt: firebase.database.ServerValue.TIMESTAMP, paid: true });
+      result = found;
+    }
+  });
+  // Wait for result - use callback
+  return null; // placeholder - will be replaced below
+}
+
+// Simple approach: show code after payment
+var pendingCodes = {};
+function getPendingCode(plan) {
+  if (!FB_ENABLED) return null;
+  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var code = '';
+  for (var i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  RTDB.ref('codes/' + code).set({ plan: plan, used: false, createdAt: firebase.database.ServerValue.TIMESTAMP, paid: true });
+  return code;
+}
+
+document.querySelectorAll('.pay-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var plan = this.dataset.plan;
+    var amount = parseInt(this.dataset.amount);
+    var planLabel = plan === '1day' ? 'Day' : plan === '1week' ? 'Week' : 'Month';
+    var statusEl = document.getElementById('payStatus') || document.getElementById('unlockError');
+    if (!intasendKey) {
+      statusEl.textContent = 'Set IntaSend key in Console first';
+      statusEl.style.color = '#ff6b6b';
+      return;
+    }
+    if (typeof window.IntaSend === 'undefined') {
+      statusEl.textContent = 'SDK not loaded. Check internet.';
+      statusEl.style.color = '#ff6b6b';
+      return;
+    }
+    statusEl.textContent = '';
+    var self = this;
+    self.textContent = 'Processing...'; self.disabled = true;
+    var payer = new window.IntaSend({
+      publicAPIKey: intasendKey,
+      live: true
+    });
+    payer.run({
+      amount: amount,
+      currency: "KES",
+      email: "customer@gamechanger.app",
+      first_name: "Game",
+      last_name: "Changer",
+      country: "KE"
+    })
+    .on("COMPLETE", function() {
+      var code = getPendingCode(plan);
+      if (FB_ENABLED && code) {
+        // Auto-unlock
+        RTDB.ref('codes/' + code).once('value').then(function(snap) {
+          if (snap.exists()) {
+            setUnlocked(plan);
+            statusEl.innerHTML = 'Paid! Code: <strong>' + code + '</strong> — app unlocked';
+            statusEl.style.color = 'var(--green)';
+            setTimeout(function() { location.reload(); }, 3000);
+          }
+        });
+      } else {
+        statusEl.textContent = 'Payment confirmed! Contact admin for your code.';
+        statusEl.style.color = 'var(--gold)';
+      }
+      self.textContent = 'Pay ' + amount + ' KES';
+      self.disabled = false;
+    })
+    .on("FAILED", function() {
+      statusEl.textContent = 'Payment cancelled. Try again.';
+      statusEl.style.color = '#ff6b6b';
+      self.textContent = 'Buy 1 ' + planLabel + ' — ' + amount + ' KES';
+      self.disabled = false;
+    })
+    .on("IN-PROGRESS", function() {
+      statusEl.textContent = 'Check your phone for M-Pesa prompt...';
+      statusEl.style.color = 'var(--gold)';
+    });
+  });
 });
 
 // Code generation (admin)
@@ -1399,7 +1511,6 @@ function loadServerTracks() {
 checkAccess();
 if(IS_LISTENER) loadServerTracks();
 renderTracks(); updateStats();
-updateSellyLinks();
 
 // Service worker for offline support
 if ('serviceWorker' in navigator) {
