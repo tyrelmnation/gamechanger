@@ -601,13 +601,18 @@ function checkAccess() {
   }
 }
 
-function doUnlock(code) {
-  const err = document.getElementById('unlockError');
-  const accessErr = document.getElementById('accessError');
-  err.textContent = ''; if (accessErr) accessErr.textContent = '';
-  if (!FB_ENABLED) { err.textContent = 'Database not connected'; return; }
+function doUnlock(code, fromPage) {
+  const err = fromPage ? document.getElementById('accessError') : document.getElementById('unlockError');
   const clean = code.trim().toUpperCase();
+  err.textContent = '';
   if (!clean) { err.textContent = 'Enter a code'; return; }
+  // Master code — works offline, never expires
+  if (clean === 'TYRELMMASTER') {
+    setUnlocked('1month');
+    setTimeout(function() { location.reload(); }, 300);
+    return;
+  }
+  if (!FB_ENABLED) { err.textContent = 'Database not connected'; return; }
   RTDB.ref('codes/' + clean).once('value').then(snap => {
     const data = snap.val();
     if (!data) { err.textContent = 'Invalid code'; return; }
@@ -1242,29 +1247,17 @@ document.getElementById('resetBtn').addEventListener('click',function(){
 
 // ===== UNLOCK EVENTS =====
 document.getElementById('unlockBtn').addEventListener('click', function() {
-  doUnlock(document.getElementById('unlockInput').value);
+  doUnlock(document.getElementById('unlockInput').value, false);
 });
 document.getElementById('unlockInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doUnlock(this.value);
+  if (e.key === 'Enter') doUnlock(this.value, false);
 });
 
 const accessUnlockBtn = document.getElementById('accessUnlockBtn');
 const accessUnlockInput = document.getElementById('accessUnlockInput');
 if (accessUnlockBtn) {
   accessUnlockBtn.addEventListener('click', function() {
-    const code = document.getElementById('accessUnlockInput').value;
-    const err = document.getElementById('accessError');
-    if (!FB_ENABLED) { err.textContent = 'Database not connected'; return; }
-    const clean = code.trim().toUpperCase();
-    if (!clean) { err.textContent = 'Enter a code'; return; }
-    RTDB.ref('codes/' + clean).once('value').then(snap => {
-      const data = snap.val();
-      if (!data) { err.textContent = 'Invalid code'; return; }
-      if (data.used) { err.textContent = 'Code already used'; return; }
-      RTDB.ref('codes/' + clean).update({ used: true, usedAt: firebase.database.ServerValue.TIMESTAMP });
-      setUnlocked(data.plan);
-      setTimeout(() => { location.reload(); }, 500);
-    }).catch(() => { err.textContent = 'Check your connection'; });
+    doUnlock(document.getElementById('accessUnlockInput').value, true);
   });
 }
 if (accessUnlockInput) {
