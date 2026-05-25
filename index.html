@@ -3,14 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>GAME CHANGER-TM — Tyrelm Nation</title>
+<title>Game Changer — Tyrelm Nation</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<!-- IntaSend SDK removed -->
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -23,15 +17,13 @@
   --border:rgba(201,168,76,0.15);
   --green:#00ff88;
 }
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden}
-
-/* Tab bar */
-.tab-bar{display:flex;justify-content:center;gap:2px;max-width:640px;margin:0 auto 8px;padding:8px 12px 0;position:sticky;top:0;z-index:100;background:var(--bg)}
-.tab-btn{background:var(--card);border:1px solid var(--border);color:var(--dim);font-family:inherit;font-size:9px;letter-spacing:1px;padding:8px 6px;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;font-weight:400;line-height:1.2}
-.tab-btn:hover{border-color:var(--gold-dim);color:var(--text)}
-.tab-btn.active{background:rgba(201,168,76,0.08);border-color:var(--gold-dim);color:var(--gold)}
-.tab-content{display:none;max-width:640px;margin:0 auto}
-.tab-content.active{display:block}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;line-height:1.6;overflow-x:hidden;padding-bottom:70px}
+.console-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(10,10,10,0.98);backdrop-filter:blur(16px);border-top:1px solid #2a2a2a;display:flex;justify-content:space-around;padding:4px 0 6px;max-width:640px;margin:0 auto}
+.nav-btn{background:none;border:none;color:var(--dim);font-family:inherit;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 8px;cursor:pointer;transition:color 0.2s;display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:600}
+.nav-btn .icon{font-size:16px;line-height:1}
+.nav-btn.active{color:var(--gold)}
+.page{display:none;max-width:640px;margin:0 auto;padding:0 0 70px}
+.page.active{display:block}
 
 /* CONSOLE */
 .console-player{padding:12px 12px 0}
@@ -107,8 +99,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .track-item .del-btn{background:none;border:none;color:#ff6b6b44;cursor:pointer;font-size:11px;padding:4px 6px;flex-shrink:0}
 .track-item .del-btn:hover{color:#ff6b6b}
 .track-item .tag{font-size:7px;color:var(--dim);border:1px solid rgba(255,255,255,0.06);border-radius:2px;padding:1px 5px;flex-shrink:0;font-family:monospace}
-
-/* Lock screen, access page, code gen styles removed */
 
 /* ===== TAP-TO-TIME LYRIC EDITOR ===== */
 .lyric-editor{padding:0 12px 12px}
@@ -252,32 +242,19 @@ body.mode-default .ctrl-side .pwr-light,
 body.mode-default .dash-avatar { display: none !important }
 body.mode-default .console-controls { justify-content: center; padding: 6px 12px }
 body.mode-default .arcade { gap: 2px }
-
-/* Listener mode — keep only Play + Library */
-body.listener-mode .nav-admin { display: none !important }
-body.listener-mode .del-btn { display: none !important }
-body.listener-mode .lyric-editor { display: none !important }
-body.listener-mode .artist-bio-section { display: none !important }
-body.listener-mode #resetBtn { display: none !important }
-body.listener-mode .drive-bay { display: none !important }
-body.listener-mode .dash-settings { display: none !important }
-body.listener-mode .tab-bar { max-width: 320px }
 </style>
 </head>
 <body>
 
-<!-- Lock screen removed -->
-
-<div class="tab-bar">
-  <button class="tab-btn active" data-tab="player">&#9654; PLAY</button>
-  <button class="tab-btn" data-tab="library">&#9835; LIBRARY</button>
-  <!-- ACCESS tab button removed -->
-  <button class="tab-btn nav-admin" data-tab="upload">+ LOAD</button>
-  <button class="tab-btn nav-admin" data-tab="account">&#9787; CONSOLE</button>
+<div class="console-nav">
+  <button class="nav-btn active" data-tab="player"><span class="icon">&#9654;</span> Play</button>
+  <button class="nav-btn" data-tab="library"><span class="icon">&#9835;</span> Library</button>
+  <button class="nav-btn" data-tab="upload"><span class="icon">+</span> Load</button>
+  <button class="nav-btn" data-tab="account"><span class="icon">&#9787;</span> Console</button>
 </div>
 
 <!-- ===== PLAYER ===== -->
-<div class="tab-content active" id="tab-player">
+<div class="page active" id="pagePlayer">
   <div class="console-player">
     <div class="console-body">
       <div class="console-vent"><div class="vent-line"></div><div class="vent-line"></div><div class="vent-line"></div><div class="vent-line"></div><div class="vent-line"></div><div class="vent-line"></div></div>
@@ -294,7 +271,7 @@ body.listener-mode .tab-bar { max-width: 320px }
             <div class="screen-bio" id="screenBio"></div>
           </div>
         </div>
-        <div class="console-brand">GAME CHANGER-TM</div>
+        <div class="console-brand">GAME CHANGER</div>
       </div>
       <div class="console-controls">
         <div class="dpad">
@@ -315,16 +292,14 @@ body.listener-mode .tab-bar { max-width: 320px }
 </div>
 
 <!-- ===== LIBRARY ===== -->
-<div class="tab-content" id="tab-library">
+<div class="page" id="pageLibrary">
   <div style="padding:12px;text-align:center"><h2 style="font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase">Library</h2><p style="font-size:9px;color:var(--dim);font-family:monospace">Your tracks</p></div>
   <div class="track-list" id="libraryList"></div>
   <div class="empty-box" id="libEmpty"><div class="e-icon">&#9835;</div><p>Nothing loaded yet</p><p class="sub">Go to Load to import your music</p></div>
 </div>
 
-<!-- ACCESS tab removed -->
-
 <!-- ===== LOAD (Audio + Art) ===== -->
-<div class="tab-content" id="tab-upload">
+<div class="page" id="pageUpload">
   <div class="drive-bay">
     <div style="text-align:center;padding:8px 0"><h2 style="font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase">Load Media</h2><p style="font-size:9px;color:var(--dim);font-family:monospace">Audio &bull; Album Art</p></div>
     <div class="drive-cats" id="driveCats">
@@ -397,16 +372,14 @@ body.listener-mode .tab-bar { max-width: 320px }
 </div>
 
 <!-- ===== ACCOUNT ===== -->
-<div class="tab-content" id="tab-account">
+<div class="page" id="pageAccount">
   <div class="dash-section">
-    <div class="dash-header"><div class="dash-avatar">&#127925;</div><div class="dash-name">Game Changer-TM</div><div style="font-size:9px;color:var(--dim);font-family:monospace">Tyrelm Nation</div></div>
+    <div class="dash-header"><div class="dash-avatar">&#127925;</div><div class="dash-name">Game Changer</div><div style="font-size:9px;color:var(--dim);font-family:monospace">Tyrelm Nation</div></div>
     <div class="dash-grid">
       <div class="dash-card"><div class="num" id="statTracks">0</div><div class="lbl">Tracks</div></div>
       <div class="dash-card"><div class="num" id="statUploads">0</div><div class="lbl">Loaded</div></div>
-      <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div><div id="firebaseBadge" style="font-size:7px;color:#555;font-family:monospace;margin-top:2px">local only</div></div>
+      <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div></div>
     </div>
-    <!-- IntaSend Setup removed -->
-    <!-- Code generation removed -->
     <div class="dash-settings">
       <div class="set-row"><div><div class="lbl">Auto-advance</div><div class="desc">Play next track automatically</div></div><div class="toggle-sw on" id="togAuto"></div></div>
       <div class="set-row"><div><div class="lbl">Game Mode</div><div class="desc">Retro console aesthetic</div></div><div class="toggle-sw on" id="togGame"></div></div>
@@ -422,69 +395,6 @@ body.listener-mode .tab-bar { max-width: 320px }
 </div>
 
 <script>
-// ===== MODE DETECTION =====
-const URL_MODE = new URLSearchParams(window.location.search).get('mode');
-const ADMIN_HASH = '2dfdea7f516c851e65dfa53106bcbd22044def82c1691265bc461bc2869f5b4f';
-const IS_LISTENER = URL_MODE !== 'admin' || localStorage.getItem('tyrelm_admin_auth') !== '1';
-if (URL_MODE === 'admin' && localStorage.getItem('tyrelm_admin_auth') !== '1') {
-  var pwd = prompt('Enter admin password:');
-  if (pwd) {
-    crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd)).then(function(buf) {
-      var arr = Array.from(new Uint8Array(buf));
-      var hash = arr.map(function(b) { return b.toString(16).padStart(2,'0'); }).join('');
-      if (hash === ADMIN_HASH) { localStorage.setItem('tyrelm_admin_auth', '1'); location.reload(); }
-      else { window.location.href = window.location.pathname; }
-    });
-  } else { window.location.href = window.location.pathname; }
-}
-if (IS_LISTENER) document.body.classList.add('listener-mode');
-
-// ===== FIREBASE CONFIG =====
-const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyCPB_KVD1VYr0mAvl32V5SBGOxJ0IRRuqU",
-  authDomain: "tyrelm-gamechanger.firebaseapp.com",
-  projectId: "tyrelm-gamechanger",
-  storageBucket: "tyrelm-gamechanger.firebasestorage.app",
-  messagingSenderId: "447735146927",
-  appId: "1:447735146927:web:1e5436a97043494744e75a",
-  measurementId: "G-WM89QZGJ2X"
-};
-
-let RTDB = null;
-let FB_ENABLED = false;
-
-if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
-  try {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    RTDB = firebase.database();
-    FB_ENABLED = true;
-    const badge = document.getElementById('firebaseBadge');
-    if (badge) badge.textContent = 'live';
-  } catch (e) { console.log("Firebase init failed:", e); }
-}
-
-function trackPlay(title) {
-  if (!FB_ENABLED || !title) return;
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
-  try {
-    RTDB.ref('plays/' + slug).transaction(function(current) {
-      return (current || 0) + 1;
-    });
-  } catch(e) {}
-}
-
-function getFirebasePlays() {
-  if (!FB_ENABLED) return Promise.resolve(null);
-  return RTDB.ref('plays').once('value').then(snap => {
-    const data = snap.val();
-    if (!data) return 0;
-    return Object.values(data).reduce((a,b) => a + (typeof b === 'number' ? b : 0), 0);
-  }).catch(() => null);
-}
-// ===== END FIREBASE =====
-
-// Unlock system removed
-
 // ===== INDEXED DB =====
 const DB = 'tyrelm_console_v7';
 function openDB() {
@@ -581,7 +491,6 @@ function playIt(src, title, el, tid, media) {
   document.getElementById('reelL').className='tape-dot spin'; document.getElementById('reelR').className='tape-dot spin';
   document.getElementById('btnPlayPause').textContent='\u25A0';
   if(tid) { getAllTracks().then(all=>{const t=all.find(x=>x.id===tid);if(t){t.plays=(t.plays||0)+1;updateTrack(t.id,t);}}); }
-  trackPlay(title);
 function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0').substring(0,5)}
   a.ontimeupdate = () => { if(a.duration) { document.getElementById('screenBarFill').style.width = (a.currentTime/a.duration*100)+'%'; document.getElementById('screenTime').textContent = fmtTime(a.currentTime)+' / '+fmtTime(a.duration); } };
   if(syncInterval) clearInterval(syncInterval);
@@ -613,7 +522,7 @@ function stopPlay() {
 function renderTracks() {
   const pl = document.getElementById('playerList'), ll = document.getElementById('libraryList'), le = document.getElementById('libEmpty'), ru = document.getElementById('recentUploads');
   const sel = document.getElementById('lyricTrackSelect');
-  function addDel(e,id){if(IS_LISTENER)return;const d=document.createElement('button');d.className='del-btn';d.textContent='\u2715';d.onclick=async ev=>{ev.stopPropagation();await deleteTrack(id);renderTracks();updateStats();};e.appendChild(d);}
+  function addDel(e,id){const d=document.createElement('button');d.className='del-btn';d.textContent='\u2715';d.onclick=async ev=>{ev.stopPropagation();await deleteTrack(id);renderTracks();updateStats();};e.appendChild(d);}
   return getAllTracks().then(uploaded => {
     pl.innerHTML = '';
     if(uploaded.length) { uploaded.forEach(t=>{const it=mkTrack(t.title,'--:--',null,t.id,'uploaded',0,t,t.artist||'');pl.appendChild(it);}); }
@@ -1103,22 +1012,12 @@ document.getElementById('resetBtn').addEventListener('click',function(){
   if(confirm('Reset console? Deletes all tracks.')){openDB().then(db=>{db.transaction('tracks','readwrite').objectStore('tracks').clear();db.close();}).then(()=>location.reload());}
 });
 
-// IntaSend payment code removed
-
-// Code generation removed
-
 // ===== NAV =====
-document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',function(){
-  if (IS_LISTENER && this.classList.contains('nav-admin')) {
-    document.querySelector('[data-tab="player"]').click();
-    return;
-  }
-  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(p=>p.classList.remove('active'));
+document.querySelectorAll('.nav-btn').forEach(b=>b.addEventListener('click',function(){
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   this.classList.add('active');
-  const tabId = 'tab-' + this.dataset.tab;
-  const el = document.getElementById(tabId);
-  if (el) el.classList.add('active');
+  document.getElementById('page'+this.dataset.tab.charAt(0).toUpperCase()+this.dataset.tab.slice(1)).classList.add('active');
   if(this.dataset.tab==='upload') refreshLyricSelect();
   if(this.dataset.tab==='account') refreshBioSelect();
 }));
@@ -1141,50 +1040,12 @@ function updateStats() {
   getAllTracks().then(u => {
     document.getElementById('statTracks').textContent = u.length;
     document.getElementById('statUploads').textContent = u.length;
-    if (FB_ENABLED) {
-      getFirebasePlays().then(n => {
-        if (n !== null) document.getElementById('statPlays').textContent = n;
-      });
-    } else {
-      document.getElementById('statPlays').textContent = playCount;
-    }
+    document.getElementById('statPlays').textContent = playCount;
   });
 }
 
-// Load server tracks in listener mode
-function loadServerTracks() {
-  fetch('tracks.json').then(r=>r.json()).then(list=>{
-    if(!list||!list.length) return;
-    getAllTracks().then(existing=>{
-      const existingTitles = new Set(existing.map(t=>t.title.toLowerCase()));
-      list.forEach(async item => {
-        if(!existingTitles.has(item.title.toLowerCase())) {
-          try {
-            const resp = await fetch(item.url);
-            const blob = await resp.blob();
-            const file = new File([blob], item.title+'.mp3', {type:'audio/mpeg'});
-            await saveTrack({
-              title:item.title, type:'audio', artist:item.artist||'',
-              bio:item.bio||'', audioData:file, audioUrl:URL.createObjectURL(file),
-              coverData:null, coverUrl:null, lyrics:null, syncedLyrics:item.syncedLyrics||[],
-              uploaded:Date.now(), plays:0
-            });
-          } catch(e) {}
-        }
-      });
-      renderTracks();
-    });
-  }).catch(()=>{});
-}
-
 // ===== INIT =====
-if(IS_LISTENER) loadServerTracks();
 renderTracks(); updateStats();
-
-// Service worker for offline support
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
-}
 </script>
 </body>
 </html>
