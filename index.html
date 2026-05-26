@@ -688,17 +688,18 @@ function stopPlay() {
 
 // ===== RENDER =====
 function allTracks() {
-  return Promise.all([getAllTracks(), loadSharedTracks()]).then(function(results){
-    var local = results[0], shared = results[1];
-    // Tag shared tracks so they have unique ids
-    shared.forEach(function(t){ t.id = 'fb_' + t.id; });
-    // Don't include shared tracks that are already in local (matched by title)
-    var localTitles = local.map(function(t){ return t.title.toLowerCase(); });
-    var newShared = shared.filter(function(t){ return localTitles.indexOf(t.title.toLowerCase()) === -1; });
-    return [...githubTracks, ...local, ...newShared];
-  }).catch(function(){
-    return getAllTracks().then(function(u){ return [...githubTracks, ...u]; }).catch(function(){ return githubTracks; });
-  });
+  return getAllTracks().then(function(u){
+    var combined = [...githubTracks, ...u];
+    if (FB_ENABLED) {
+      loadSharedTracks().then(function(shared) {
+        shared.forEach(function(t){ t.id = 'fb_' + t.id; });
+        var localTitles = u.map(function(t){ return t.title.toLowerCase(); });
+        var newShared = shared.filter(function(t){ return localTitles.indexOf(t.title.toLowerCase()) === -1; });
+        if (newShared.length) { renderTracks(); }
+      }).catch(function(){});
+    }
+    return combined;
+  }).catch(function(){ return githubTracks; });
 }
 function renderTracks() {
   const pl = document.getElementById('playerList'), ll = document.getElementById('libraryList'), le = document.getElementById('libEmpty'), ru = document.getElementById('recentUploads');
@@ -985,6 +986,15 @@ document.getElementById('lyricTrackSelect').addEventListener('change', function(
 function findTrackById(id) {
   var gh = githubTracks.find(function(t){ return t.id === id; });
   if (gh) return Promise.resolve(gh);
+  // For fb_ tracks, try Firebase RTDB directly
+  if (String(id).indexOf('fb_') === 0 && FB_ENABLED) {
+    var fid = id.replace('fb_', '');
+    return RTDB.ref('tracks/' + fid).once('value').then(function(snap) {
+      var t = snap.val();
+      if (!t) return null;
+      return { id: id, title: t.title || '', artist: t.artist || '', audioUrl: t.audioUrl || null, coverUrl: t.coverUrl || null, bio: t.bio || '', syncedLyrics: t.syncedLyrics || [], lyrics: null, type: 'firebase', plays: t.plays || 0 };
+    }).catch(function(){ return null; });
+  }
   return allTracks().then(function(all){ return all.find(function(x){ return String(x.id) == String(id); }); }).catch(function(){ return null; });
 }
 function loadTrackLyrics(media) {
