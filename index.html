@@ -609,7 +609,7 @@ function stopPlay() {
 
 // ===== RENDER =====
 function allTracks() {
-  return getAllTracks().then(function(u){ return [...githubTracks, ...u]; });
+  return getAllTracks().then(function(u){ return [...githubTracks, ...u]; }).catch(function(){ return githubTracks; });
 }
 function renderTracks() {
   const pl = document.getElementById('playerList'), ll = document.getElementById('libraryList'), le = document.getElementById('libEmpty'), ru = document.getElementById('recentUploads');
@@ -790,7 +790,7 @@ document.getElementById('lyricTrackSelect').addEventListener('change', function(
 function findTrackById(id) {
   var gh = githubTracks.find(function(t){ return t.id === id; });
   if (gh) return Promise.resolve(gh);
-  return getAllTracks().then(function(all){ return all.find(function(x){ return x.id == id; }); });
+  return getAllTracks().then(function(all){ return all.find(function(x){ return x.id == id; }); }).catch(function(){ return null; });
 }
 // Ruler click/drag
 let rulerDragging = false;
@@ -1212,19 +1212,22 @@ function updateStats() {
 
 // Load server tracks — in-memory, stream from GitHub
 function loadServerTracks() {
-  return fetch('tracks.json').then(r=>r.json()).then(list=>{
-    githubTracks = (list||[]).map((item, idx) => ({
-      id: 'gh_' + idx,
-      title: item.title,
-      artist: item.artist || '',
-      audioUrl: item.url,
-      coverUrl: item.coverUrl || null,
-      bio: item.bio || '',
-      syncedLyrics: item.syncedLyrics || [],
-      lyrics: null,
-      type: 'github'
-    }));
-  }).catch(function(){});
+  return Promise.race([
+    fetch('tracks.json').then(function(r){ return r.json(); }).then(function(list){
+      githubTracks = (list||[]).map(function(item, idx){ return {
+        id: 'gh_' + idx,
+        title: item.title,
+        artist: item.artist || '',
+        audioUrl: item.url,
+        coverUrl: item.coverUrl || null,
+        bio: item.bio || '',
+        syncedLyrics: item.syncedLyrics || [],
+        lyrics: null,
+        type: 'github'
+      }; });
+    }),
+    new Promise(function(resolve){ setTimeout(resolve, 3000); })
+  ]).catch(function(){});
 }
 
 // ===== INIT =====
@@ -1232,9 +1235,11 @@ loadServerTracks().then(function() {
   renderTracks().then(function() { updateStats(); });
 });
 
-// Service worker for offline support
+// Unregister any old service workers
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r){ r.unregister(); });
+  });
 }
 </script>
 </body>
