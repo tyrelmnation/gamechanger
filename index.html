@@ -687,19 +687,20 @@ function stopPlay() {
 }
 
 // ===== RENDER =====
+var FB_TRACKS_CACHE = [];
 function allTracks() {
   return getAllTracks().then(function(u){
-    var combined = [...githubTracks, ...u];
-    if (FB_ENABLED) {
+    var combined = [...githubTracks, ...u, ...FB_TRACKS_CACHE];
+    if (FB_ENABLED && !FB_TRACKS_CACHE.length) {
       loadSharedTracks().then(function(shared) {
-        shared.forEach(function(t){ t.id = 'fb_' + t.id; });
+        FB_TRACKS_CACHE = shared.map(function(t){ t.id = 'fb_' + t.id; return t; });
         var localTitles = u.map(function(t){ return t.title.toLowerCase(); });
-        var newShared = shared.filter(function(t){ return localTitles.indexOf(t.title.toLowerCase()) === -1; });
+        var newShared = FB_TRACKS_CACHE.filter(function(t){ return localTitles.indexOf(t.title.toLowerCase()) === -1; });
         if (newShared.length) { renderTracks(); }
       }).catch(function(){});
     }
     return combined;
-  }).catch(function(){ return githubTracks; });
+  }).catch(function(){ return [...githubTracks, ...FB_TRACKS_CACHE]; });
 }
 function renderTracks() {
   const pl = document.getElementById('playerList'), ll = document.getElementById('libraryList'), le = document.getElementById('libEmpty'), ru = document.getElementById('recentUploads');
@@ -1250,17 +1251,19 @@ function renderTimedLines() {
 // Done button — navigates to player and plays the track
 document.getElementById('tlDone').addEventListener('click', function() {
   if(!editTrackId) return;
-  // Stop editor audio
   if(editAudio) { editAudio.pause(); editAudio = null; }
   if(editInterval) { clearInterval(editInterval); editInterval = null; }
   editPlaying = false;
-  saveLyrics(editTrackId, editLines).then(function() {
+  saveLyrics(editTrackId, editLines).catch(function(e) { console.error('saveLyrics failed', e); }).then(function() {
     renderTracks().then(function() {
       document.querySelector('[data-tab="player"]').click();
-      var items = document.querySelectorAll('#playerList .track-item');
-      for(var i=0; i<items.length; i++) {
-        if(String(items[i].dataset.id) === String(editTrackId)) { items[i].click(); break; }
-      }
+      findTrackById(editTrackId).then(function(t) {
+        if (!t || !t.audioUrl) { return; }
+        loadTrackLyrics(t).then(function(m) {
+          document.querySelector('[data-tab="player"]').click();
+          playIt(m.audioUrl, t.title || 'Untitled', null, t.id, m);
+        });
+      });
     });
   });
 });
