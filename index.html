@@ -1210,24 +1210,45 @@ function updateStats() {
   });
 }
 
+// Hardcoded fallback tracks in case tracks.json fails to load
+var FALLBACK_TRACKS = [
+  {title:"FALL BACK", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/FALL%20BACK.m4a"},
+  {title:"BROKEN DIARY LETTERS", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/BROKEN%20DIARY%20LETTERS.m4a"},
+  {title:"ALL OF ME", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/ALL%20OF%20ME.m4a"},
+  {title:"BROKEN LOVE STORY", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/BROKEN%20LOVE%20STORY.m4a"},
+  {title:"EMPTY PROMISES", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/EMPTY%20PROMISES.m4a"},
+  {title:"FRIDAY NIGHTS", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/FRIDAY%20NIGHTS.m4a"},
+  {title:"BROKEN DIARY OUTRO", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/BROKEN%20DIARY%20EP/BROKEN%20DIARY%20OUTRO.m4a"},
+  {title:"24/7", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/24-7.m4a"},
+  {title:"BIG PICKLE", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/BIG%20PICKLE.m4a"},
+  {title:"CIRCLE OF LOVE", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/CIRCLE%20OF%20LOVE.m4a"},
+  {title:"COME CLOSER", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/COME%20CLOSER.m4a"},
+  {title:"DANGEROUS", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/DANGEROUS.m4a"},
+  {title:"GAMECHANGER", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/GAMECHANGER.m4a"},
+  {title:"MAGIC", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/MAGIC.m4a"},
+  {title:"MIAMI", artist:"Tyrelm", url:"https://raw.githubusercontent.com/tyrelmnation/Tyrelm/main/TIME%20AND%20SPACE%20ALBUM/MIAMI.m4a"}
+];
+function tracksFromList(list) {
+  return (list||[]).map(function(item, idx){ return {
+    id: 'gh_' + idx,
+    title: item.title,
+    artist: item.artist || '',
+    audioUrl: item.url,
+    coverUrl: item.coverUrl || null,
+    bio: item.bio || '',
+    syncedLyrics: item.syncedLyrics || [],
+    lyrics: null,
+    type: 'github'
+  }; });
+}
 // Load server tracks — in-memory, stream from GitHub
 function loadServerTracks() {
-  return Promise.race([
-    fetch('tracks.json').then(function(r){ return r.json(); }).then(function(list){
-      githubTracks = (list||[]).map(function(item, idx){ return {
-        id: 'gh_' + idx,
-        title: item.title,
-        artist: item.artist || '',
-        audioUrl: item.url,
-        coverUrl: item.coverUrl || null,
-        bio: item.bio || '',
-        syncedLyrics: item.syncedLyrics || [],
-        lyrics: null,
-        type: 'github'
-      }; });
-    }),
-    new Promise(function(resolve){ setTimeout(resolve, 3000); })
-  ]).catch(function(){});
+  return fetch('tracks.json').then(function(r){ return r.json(); }).then(function(list){
+    githubTracks = tracksFromList(list);
+  }).catch(function(){
+    // Fallback to hardcoded list
+    githubTracks = tracksFromList(FALLBACK_TRACKS);
+  });
 }
 
 // ===== INIT =====
