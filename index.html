@@ -912,18 +912,17 @@ function saveLyrics(id, lines) {
     var track = githubTracks.find(function(t){ return t.id === id; });
     if (track && FB_ENABLED) {
       var slug = track.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
-      RTDB.ref('lyrics/' + slug).set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
+      return RTDB.ref('lyrics/' + slug).set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
     }
-    return;
+    return Promise.resolve();
   }
   if (String(id).indexOf('fb_') === 0 && FB_ENABLED) {
     var fbId = id.replace('fb_', '');
-    RTDB.ref('tracks/' + fbId + '/syncedLyrics').set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
-    return;
+    return RTDB.ref('tracks/' + fbId + '/syncedLyrics').set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
   }
-  getAllTracks().then(function(all){
+  return getAllTracks().then(function(all){
     var t = all.find(function(x){ return x.id == id; });
-    if(t) { t.syncedLyrics = lines; updateTrack(t.id, t); }
+    if(t) { t.syncedLyrics = lines; return updateTrack(t.id, t); }
   });
 }
 
@@ -1245,13 +1244,14 @@ document.getElementById('tlDone').addEventListener('click', function() {
   if(editAudio) { editAudio.pause(); editAudio = null; }
   if(editInterval) { clearInterval(editInterval); editInterval = null; }
   editPlaying = false;
-  saveLyrics(editTrackId, editLines);
-  renderTracks().then(function() {
-    document.querySelector('[data-tab="player"]').click();
-    var items = document.querySelectorAll('#playerList .track-item');
-    for(var i=0; i<items.length; i++) {
-      if(String(items[i].dataset.id) === String(editTrackId)) { items[i].click(); break; }
-    }
+  saveLyrics(editTrackId, editLines).then(function() {
+    renderTracks().then(function() {
+      document.querySelector('[data-tab="player"]').click();
+      var items = document.querySelectorAll('#playerList .track-item');
+      for(var i=0; i<items.length; i++) {
+        if(String(items[i].dataset.id) === String(editTrackId)) { items[i].click(); break; }
+      }
+    });
   });
 });
 
