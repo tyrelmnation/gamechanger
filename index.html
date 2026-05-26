@@ -341,8 +341,8 @@ body.listener-mode .tab-bar { max-width: 320px }
       <div class="drive-cat active" data-cat="audio">Audio</div>
       <div class="drive-cat" data-cat="art">Album Art</div>
     </div>
-    <div class="drive-slot" id="driveSlot"><div class="s-icon">&#128190;</div><h3 id="slotTitle">Select Audio Files</h3><p id="slotDesc">MP3, WAV, FLAC</p></div>
-    <input type="file" id="fileInput" accept="audio/*" multiple style="display:none">
+    <label class="drive-slot" id="driveSlot"><div class="s-icon">&#128190;</div><h3 id="slotTitle">Select Audio Files</h3><p id="slotDesc">MP3, WAV, FLAC</p>
+    <input type="file" id="fileInput" accept="audio/*" multiple style="position:absolute;opacity:0;pointer-events:none;width:0;height:0"></label>
     <div class="drive-progress" id="driveProgress"><div class="drive-bar"><div class="drive-fill" id="driveFill"></div></div><div class="drive-status" id="driveStatus"></div></div>
     <div class="art-remove" id="artRemove"></div>
     <div class="track-list" style="padding:8px 0" id="recentUploads"></div>
@@ -685,8 +685,8 @@ function setCat(cat) {
     document.getElementById('slotTitle').textContent='Select Album Art'; document.getElementById('slotDesc').textContent='JPG, PNG, MP4, MOV'; refreshArtRemove(); }
 }
 document.querySelectorAll('.drive-cat').forEach(c=>c.addEventListener('click',function(){setCat(this.dataset.cat);}));
-document.getElementById('driveSlot').onclick = ()=>document.getElementById('fileInput').click();
-document.getElementById('fileInput').onchange = function(){if(this.files.length)handleFiles(this.files);};
+document.getElementById('driveSlot').addEventListener('click', function(e){ if(e.target.tagName!=='INPUT') document.getElementById('fileInput').click(); });
+document.getElementById('fileInput').addEventListener('change', function(){if(this.files.length)handleFiles(this.files);});
 async function handleFiles(files) {
   const p=document.getElementById('driveProgress'),f=document.getElementById('driveFill'),s=document.getElementById('driveStatus');
   p.classList.add('active'); let total=files.length, done=0;
