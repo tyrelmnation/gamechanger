@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://unpkg.com/intasend-inlinejs-sdk@4.0.5/build/intasend-inline.js"></script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -108,30 +108,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .track-item .del-btn:hover{color:#ff6b6b}
 .track-item .tag{font-size:7px;color:var(--dim);border:1px solid rgba(255,255,255,0.06);border-radius:2px;padding:1px 5px;flex-shrink:0;font-family:monospace}
 
-/* ===== LOCK SCREEN ===== */
-.lock-overlay{position:fixed;inset:0;z-index:9999;background:#080808;display:flex;align-items:center;justify-content:center;padding:32px;font-family:'Inter',sans-serif}
-.lock-overlay.hidden{display:none}
-.lock-box{max-width:320px;width:100%;text-align:center}
-.lock-box .lock-icon{font-size:48px;margin-bottom:8px;opacity:0.3}
-.lock-box h1{font-size:18px;font-weight:600;color:var(--gold);margin-bottom:2px;letter-spacing:2px}
-.lock-box .lock-sub{font-size:9px;color:var(--dim);font-family:monospace;letter-spacing:1px;margin-bottom:20px}
-.lock-box input{width:100%;padding:12px;background:#111;border:2px solid #222;border-radius:4px;color:var(--text);font-size:18px;font-family:monospace;text-align:center;letter-spacing:4px;outline:none;margin-bottom:10px;text-transform:uppercase}
-.lock-box input:focus{border-color:var(--gold-dim)}
-.lock-box button{width:100%;padding:12px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;text-transform:uppercase}
-.lock-box button:hover{background:#e0bb60}
-.lock-box .lock-error{color:#ff6b6b;font-size:10px;margin-top:6px;min-height:20px;font-family:monospace}
-.lock-box .lock-buy{margin-top:16px;padding:12px;background:#111;border:1px solid #222;border-radius:4px;font-size:10px;color:var(--dim);line-height:1.6}
-.lock-box .lock-buy strong{color:var(--text)}
-
-/* Access page */
-.access-page{text-align:center;padding:32px 16px}
-.access-page h1{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px}
-.access-page .access-plan{border:1px solid #222;border-radius:4px;padding:16px;margin:10px 0;background:var(--card)}
-.access-page .access-plan .price{font-size:24px;font-weight:700;color:var(--gold)}
-.access-page .access-plan .desc{font-size:10px;color:var(--dim);font-family:monospace;margin-top:4px}
-.access-page .access-code{display:none;margin-top:16px}
-.access-page .access-code.show{display:block}
-
 /* Admin code gen */
 .code-gen{background:var(--card);border:1px solid #1a1a1a;border-radius:4px;padding:12px;margin-top:10px}
 .code-gen h3{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
@@ -142,7 +118,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .code-gen .gen-result.show{display:block}
 .code-gen .gen-result .code{font-size:22px;font-weight:700;color:var(--gold);letter-spacing:6px;font-family:monospace;word-break:break-all}
 .code-gen .gen-result .note{font-size:8px;color:var(--dim);margin-top:4px}
-/* ===== END LOCK SCREEN ===== */
 
 /* ===== TAP-TO-TIME LYRIC EDITOR ===== */
 .lyric-editor{padding:0 12px 12px}
@@ -296,32 +271,16 @@ body.listener-mode #resetBtn { display: none !important }
 body.listener-mode .drive-bay { display: none !important }
 body.listener-mode .dash-settings { display: none !important }
 body.listener-mode .tab-bar { max-width: 320px }
-body.listener-mode .nav-unlock { display: none !important }
+
 </style>
 </head>
 <body>
 
-<!-- Lock Screen Overlay -->
-<div class="lock-overlay" id="lockOverlay">
-  <div class="lock-box">
-    <div class="lock-icon">&#9835;</div>
-    <h1>GAME CHANGER-TM</h1>
-    <div class="lock-sub">Tyrelm Nation</div>
-    <input type="text" id="unlockInput" placeholder="ENTER CODE" maxlength="20" autocomplete="off">
-    <button id="unlockBtn">Unlock</button>
-    <div class="lock-error" id="unlockError"></div>
-    <div class="lock-buy" style="display:flex;flex-direction:column;gap:6px">
-      <button class="pay-btn" data-plan="1day" data-amount="20" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Day — 20 KES</button>
-      <button class="pay-btn" data-plan="1week" data-amount="50" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Week — 50 KES</button>
-      <button class="pay-btn" data-plan="1month" data-amount="100" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Month — 100 KES</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="player">&#9654; PLAY</button>
   <button class="tab-btn" data-tab="library">&#9835; LIBRARY</button>
-  <button class="tab-btn nav-unlock" data-tab="access" style="display:none">&#128274; ACCESS</button>
   <button class="tab-btn nav-admin" data-tab="upload">+ LOAD</button>
   <button class="tab-btn nav-admin" data-tab="account">&#9787; CONSOLE</button>
 </div>
@@ -371,34 +330,8 @@ body.listener-mode .nav-unlock { display: none !important }
   <div class="empty-box" id="libEmpty"><div class="e-icon">&#9835;</div><p>Nothing loaded yet</p><p class="sub">Go to Load to import your music</p></div>
 </div>
 
-<!-- ===== ACCESS ===== -->
-<div class="tab-content" id="tab-access">
-  <div class="access-page">
-    <h1>GAME CHANGER-TM</h1>
-    <p style="font-size:10px;color:var(--dim);font-family:monospace;margin-bottom:16px">Unlock full access</p>
-    <div class="access-plan">
-      <div class="price">—</div>
-      <div class="desc">Enter your unlock code below</div>
-    </div>
-    <div class="access-code show" id="accessEnterSection">
-      <input type="text" id="accessUnlockInput" placeholder="ENTER CODE" maxlength="20" autocomplete="off" style="width:100%;padding:12px;background:#111;border:2px solid #222;border-radius:4px;color:var(--text);font-size:16px;font-family:monospace;text-align:center;letter-spacing:4px;outline:none;margin-bottom:8px;text-transform:uppercase">
-      <button id="accessUnlockBtn" style="width:100%;padding:12px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px">Unlock</button>
-      <div id="accessError" style="color:#ff6b6b;font-size:10px;margin-top:6px;font-family:monospace"></div>
-    </div>
-      <div style="margin-top:20px;padding:16px;background:#111;border:1px solid #222;border-radius:4px;font-size:10px;color:var(--dim);line-height:1.8;text-align:left">
-      <strong style="color:var(--text)">Get a code:</strong><br>
-      &#8226; 1 Day — 20 KES<br>
-      &#8226; 1 Week — 50 KES<br>
-      &#8226; 1 Month — 100 KES<br>
-    </div>
-    <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-      <button class="pay-btn" data-plan="1day" data-amount="20" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Day — 20 KES</button>
-      <button class="pay-btn" data-plan="1week" data-amount="50" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Week — 50 KES</button>
-      <button class="pay-btn" data-plan="1month" data-amount="100" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Month — 100 KES</button>
-    </div>
-    <div style="margin-top:8px;font-size:8px;color:var(--dim);font-family:monospace" id="payStatus"></div>
-  </div>
-</div>
+
+
 
 <!-- ===== LOAD (Audio + Art) ===== -->
 <div class="tab-content" id="tab-upload">
@@ -482,26 +415,7 @@ body.listener-mode .nav-unlock { display: none !important }
       <div class="dash-card"><div class="num" id="statUploads">0</div><div class="lbl">Loaded</div></div>
       <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div><div id="firebaseBadge" style="font-size:7px;color:#555;font-family:monospace;margin-top:2px">local only</div></div>
     </div>
-    <div class="code-gen nav-admin">
-      <h3>&#128179; IntaSend Setup</h3>
-      <input id="intasendKey" type="text" placeholder="Publishable Key (from intasend.com)" style="width:100%;padding:8px;background:#0a0a0a;border:1px solid #222;color:var(--text);border-radius:3px;font-size:10px;margin-bottom:4px;font-family:inherit">
-      <button id="intasendSaveBtn" style="width:100%;padding:8px;background:var(--gold);color:var(--bg);border:none;border-radius:3px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:10px">Save Key</button>
-      <div style="font-size:8px;color:var(--dim);font-family:monospace;padding:4px 0"><a href="https://payment.intasend.com/account/signup/" target="_blank" style="color:var(--gold)">Sign up at IntaSend</a> → get your publishable key from Settings</div>
-    </div>
-    <div class="code-gen nav-admin">
-      <h3>&#128273; Generate Unlock Codes</h3>
-      <select id="codePlanSelect">
-        <option value="1day">1 Day — 20 KES</option>
-        <option value="1week">1 Week — 50 KES</option>
-        <option value="1month">1 Month — 100 KES</option>
-      </select>
-      <button class="gen-btn" id="genCodeBtn">&#43; Generate Code</button>
-      <div class="gen-result" id="genCodeResult">
-        <div class="code" id="genCodeValue"></div>
-        <div class="note">Send this code to the buyer</div>
-        <button id="genCodeCopy" style="margin-top:6px;padding:6px 16px;background:transparent;border:1px solid var(--gold-dim);color:var(--gold);border-radius:3px;cursor:pointer;font-size:9px;letter-spacing:1px;font-family:inherit">Copy</button>
-      </div>
-    </div>
+
     <div class="dash-settings">
       <div class="set-row"><div><div class="lbl">Auto-advance</div><div class="desc">Play next track automatically</div></div><div class="toggle-sw on" id="togAuto"></div></div>
       <div class="set-row"><div><div class="lbl">Game Mode</div><div class="desc">Retro console aesthetic</div></div><div class="toggle-sw on" id="togGame"></div></div>
@@ -566,74 +480,7 @@ function getFirebasePlays() {
 }
 // ===== END FIREBASE =====
 
-// ===== UNLOCK SYSTEM =====
-const UNLOCK_STORAGE_KEY = 'tyrelm_unlock';
 
-function getUnlockStatus() {
-  try {
-    const data = JSON.parse(localStorage.getItem(UNLOCK_STORAGE_KEY));
-    if (!data || !data.expiry) return null;
-    if (Date.now() > data.expiry) {
-      localStorage.removeItem(UNLOCK_STORAGE_KEY);
-      return null;
-    }
-    return data;
-  } catch(e) { return null; }
-}
-
-function setUnlocked(plan) {
-  const durations = { '1day': 86400000, '1week': 604800000, '1month': 2592000000 };
-  const dur = durations[plan] || 86400000;
-  const data = { unlocked: true, plan: plan, expiry: Date.now() + dur };
-  localStorage.setItem(UNLOCK_STORAGE_KEY, JSON.stringify(data));
-  return data;
-}
-
-function checkAccess() {
-  const overlay = document.getElementById('lockOverlay');
-  const unlockNav = document.querySelector('.nav-unlock');
-  if (!IS_LISTENER) {
-    overlay.classList.add('hidden');
-    if (unlockNav) unlockNav.style.display = 'none';
-    return;
-  }
-  const unlock = getUnlockStatus();
-  if (!unlock) {
-    overlay.classList.remove('hidden');
-    if (unlockNav) unlockNav.style.display = 'block';
-  } else {
-    overlay.classList.add('hidden');
-    if (unlockNav) unlockNav.style.display = 'none';
-  }
-}
-
-function doUnlock(code, fromPage) {
-  const err = fromPage ? document.getElementById('accessError') : document.getElementById('unlockError');
-  const clean = code.trim().toUpperCase();
-  err.textContent = '';
-  if (!clean) { err.textContent = 'Enter a code'; return; }
-  // Master code — works offline, never expires
-  if (clean === '4RE@LM') {
-    err.textContent = 'Master code accepted!';
-    err.style.color = 'var(--green)';
-    setUnlocked('1month');
-    setTimeout(function() { location.reload(); }, 1000);
-    return;
-  }
-  if (!FB_ENABLED) { err.textContent = 'Database not connected'; return; }
-  RTDB.ref('codes/' + clean).once('value').then(snap => {
-    const data = snap.val();
-    if (!data) { err.textContent = 'Invalid code'; return; }
-    if (data.used) { err.textContent = 'Code already used'; return; }
-    // Mark as used in Firebase
-    RTDB.ref('codes/' + clean).update({ used: true, usedAt: firebase.database.ServerValue.TIMESTAMP });
-    // Save unlock
-    setUnlocked(data.plan);
-    // Hide overlay or show success
-    setTimeout(() => { location.reload(); }, 500);
-  }).catch(() => { err.textContent = 'Check your connection'; });
-}
-// ===== END UNLOCK =====
 
 // ===== INDEXED DB =====
 const DB = 'tyrelm_console_v7';
@@ -1253,190 +1100,7 @@ document.getElementById('resetBtn').addEventListener('click',function(){
   if(confirm('Reset console? Deletes all tracks.')){openDB().then(db=>{db.transaction('tracks','readwrite').objectStore('tracks').clear();db.close();}).then(()=>location.reload());}
 });
 
-// ===== UNLOCK EVENTS =====
-document.getElementById('unlockBtn').addEventListener('click', function() {
-  doUnlock(document.getElementById('unlockInput').value, false);
-});
-document.getElementById('unlockInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doUnlock(this.value, false);
-});
 
-const accessUnlockBtn = document.getElementById('accessUnlockBtn');
-const accessUnlockInput = document.getElementById('accessUnlockInput');
-if (accessUnlockBtn) {
-  accessUnlockBtn.addEventListener('click', function() {
-    doUnlock(document.getElementById('accessUnlockInput').value, true);
-  });
-}
-if (accessUnlockInput) {
-  accessUnlockInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') accessUnlockBtn.click();
-  });
-}
-
-// IntaSend payment
-var intasendKey = localStorage.getItem('tyrelm_intasend_key') || '';
-document.getElementById('intasendKey').value = intasendKey;
-
-document.getElementById('intasendSaveBtn').addEventListener('click', function() {
-  intasendKey = document.getElementById('intasendKey').value.trim();
-  localStorage.setItem('tyrelm_intasend_key', intasendKey);
-  alert('IntaSend key saved!');
-});
-
-function startPayment(plan, amount, btn) {
-  var statusEl = document.getElementById('payStatus');
-  if (!statusEl) statusEl = document.getElementById('unlockError');
-  if (!intasendKey) { statusEl.textContent = 'Set IntaSend key in Console first'; return; }
-  if (typeof window.IntaSend === 'undefined') { statusEl.textContent = 'IntaSend SDK not loaded'; return; }
-  btn.textContent = 'Processing...'; btn.disabled = true;
-  var payer = new window.IntaSend({
-    publicAPIKey: intasendKey,
-    live: true
-  });
-  payer.run({
-    amount: amount,
-    currency: "KES",
-    email: "customer@gamechanger.app",
-    first_name: "Game",
-    last_name: "Changer",
-    country: "KE"
-  })
-  .on("COMPLETE", function(resp) {
-    // Payment succeeded - assign a code
-    var code = generateAndAssignCode(plan);
-    if (code) {
-      statusEl.textContent = 'Payment confirmed! Your code: ' + code;
-      statusEl.style.color = 'var(--green)';
-    } else {
-      statusEl.textContent = 'Payment confirmed! No codes available. Contact admin.';
-      statusEl.style.color = 'var(--gold)';
-    }
-    btn.textContent = 'Paid!';
-  })
-  .on("FAILED", function() {
-    statusEl.textContent = 'Payment failed or cancelled. Try again.';
-    statusEl.style.color = '#ff6b6b';
-    btn.textContent = 'Buy 1 ' + (plan==='1day'?'Day':plan==='1week'?'Week':'Month') + ' — ' + amount + ' KES';
-    btn.disabled = false;
-  })
-  .on("IN-PROGRESS", function() {
-    statusEl.textContent = 'Check your phone for M-Pesa prompt...';
-    statusEl.style.color = 'var(--gold)';
-  });
-}
-
-function generateAndAssignCode(plan) {
-  if (!FB_ENABLED) return null;
-  // Find an unused code in Firebase for this plan
-  var ref = RTDB.ref('codes');
-  var result = null;
-  ref.orderByChild('used').equalTo(false).limitToFirst(1).once('value', function(snap) {
-    var found = null;
-    snap.forEach(function(child) {
-      if (child.val().plan === plan) {
-        found = child.key;
-      }
-    });
-    if (found) {
-      ref.child(found).update({ used: true, usedAt: firebase.database.ServerValue.TIMESTAMP, paid: true });
-      result = found;
-    }
-  });
-  // Wait for result - use callback
-  return null; // placeholder - will be replaced below
-}
-
-// Simple approach: show code after payment
-var pendingCodes = {};
-function getPendingCode(plan) {
-  if (!FB_ENABLED) return null;
-  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  var code = '';
-  for (var i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  RTDB.ref('codes/' + code).set({ plan: plan, used: false, createdAt: firebase.database.ServerValue.TIMESTAMP, paid: true });
-  return code;
-}
-
-document.querySelectorAll('.pay-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var plan = this.dataset.plan;
-    var amount = parseInt(this.dataset.amount);
-    var planLabel = plan === '1day' ? 'Day' : plan === '1week' ? 'Week' : 'Month';
-    var statusEl = document.getElementById('payStatus') || document.getElementById('unlockError');
-    if (!intasendKey) {
-      statusEl.textContent = 'Set IntaSend key in Console first';
-      statusEl.style.color = '#ff6b6b';
-      return;
-    }
-    if (typeof window.IntaSend === 'undefined') {
-      statusEl.textContent = 'SDK not loaded. Check internet.';
-      statusEl.style.color = '#ff6b6b';
-      return;
-    }
-    statusEl.textContent = '';
-    var self = this;
-    self.textContent = 'Processing...'; self.disabled = true;
-    var payer = new window.IntaSend({
-      publicAPIKey: intasendKey,
-      live: true
-    });
-    payer.run({
-      amount: amount,
-      currency: "KES",
-      email: "customer@gamechanger.app",
-      first_name: "Game",
-      last_name: "Changer",
-      country: "KE"
-    })
-    .on("COMPLETE", function() {
-      var code = getPendingCode(plan);
-      if (FB_ENABLED && code) {
-        // Auto-unlock
-        RTDB.ref('codes/' + code).once('value').then(function(snap) {
-          if (snap.exists()) {
-            setUnlocked(plan);
-            statusEl.innerHTML = 'Paid! Code: <strong>' + code + '</strong> — app unlocked';
-            statusEl.style.color = 'var(--green)';
-            setTimeout(function() { location.reload(); }, 3000);
-          }
-        });
-      } else {
-        statusEl.textContent = 'Payment confirmed! Contact admin for your code.';
-        statusEl.style.color = 'var(--gold)';
-      }
-      self.textContent = 'Pay ' + amount + ' KES';
-      self.disabled = false;
-    })
-    .on("FAILED", function() {
-      statusEl.textContent = 'Payment cancelled. Try again.';
-      statusEl.style.color = '#ff6b6b';
-      self.textContent = 'Buy 1 ' + planLabel + ' — ' + amount + ' KES';
-      self.disabled = false;
-    })
-    .on("IN-PROGRESS", function() {
-      statusEl.textContent = 'Check your phone for M-Pesa prompt...';
-      statusEl.style.color = 'var(--gold)';
-    });
-  });
-});
-
-// Code generation (admin)
-document.getElementById('genCodeBtn').addEventListener('click', function() {
-  const plan = document.getElementById('codePlanSelect').value;
-  if (!FB_ENABLED) { alert('Firebase not connected'); return; }
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  RTDB.ref('codes/' + code).set({ plan: plan, used: false, createdAt: firebase.database.ServerValue.TIMESTAMP }).then(() => {
-    document.getElementById('genCodeValue').textContent = code;
-    document.getElementById('genCodeResult').classList.add('show');
-  }).catch(() => { alert('Failed to save code'); });
-});
-document.getElementById('genCodeCopy').addEventListener('click', function() {
-  const code = document.getElementById('genCodeValue').textContent;
-  navigator.clipboard.writeText(code).catch(() => {});
-});
 
 // ===== NAV =====
 document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',function(){
@@ -1507,7 +1171,6 @@ function loadServerTracks() {
 }
 
 // ===== INIT =====
-checkAccess();
 loadServerTracks().then(function() {
   renderTracks().then(function() { updateStats(); });
 });
