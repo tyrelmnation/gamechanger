@@ -1,4 +1,4 @@
-const CACHE = 'gamechanger-v3';
+const CACHE = 'gamechanger-v4';
 const URLS = ['/', '/index.html', '/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', e => {
