@@ -10,6 +10,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -27,6 +29,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 
 /* Tab bar */
 .tab-bar{display:flex;justify-content:center;gap:2px;max-width:640px;margin:0 auto 8px;padding:8px 12px 0;position:sticky;top:0;z-index:100;background:var(--bg)}
+.back-btn{display:flex;align-items:center;justify-content:center;width:32px;height:32px;background:transparent;border:1px solid var(--border);color:var(--dim);text-decoration:none;font-size:16px;border-radius:3px;flex-shrink:0;margin-right:auto;transition:all 0.2s}
+.back-btn:hover{color:var(--gold);border-color:var(--gold-dim)}
 .tab-btn{background:var(--card);border:1px solid var(--border);color:var(--dim);font-family:inherit;font-size:9px;letter-spacing:1px;padding:8px 6px;cursor:pointer;transition:all 0.2s;flex:1;text-align:center;font-weight:400;line-height:1.2}
 .tab-btn:hover{border-color:var(--gold-dim);color:var(--text)}
 .tab-btn.active{background:rgba(201,168,76,0.08);border-color:var(--gold-dim);color:var(--gold)}
@@ -249,6 +253,7 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
   .arcade-btn{width:30px;height:30px;font-size:12px}
   .arcade-btn.play-big{width:36px;height:36px;font-size:14px}
   .timing-panel .tp-line{font-size:14px}
+  .back-btn{width:28px;height:28px;font-size:14px}
 }
 /* Default mode — hide retro elements */
 body.mode-default .console-vent,
@@ -270,7 +275,7 @@ body.listener-mode .artist-bio-section { display: none !important }
 body.listener-mode #resetBtn { display: none !important }
 body.listener-mode .drive-bay { display: none !important }
 body.listener-mode .dash-settings { display: none !important }
-body.listener-mode .tab-bar { max-width: 320px }
+body.listener-mode .tab-bar { max-width: 380px }
 
 </style>
 </head>
@@ -279,6 +284,7 @@ body.listener-mode .tab-bar { max-width: 320px }
 
 
 <div class="tab-bar">
+  <a href="https://tyrelmnation.github.io/Tyrelm/" class="back-btn">&#8592;</a>
   <button class="tab-btn active" data-tab="player">&#9654; PLAY</button>
   <button class="tab-btn" data-tab="library">&#9835; LIBRARY</button>
   <button class="tab-btn nav-admin" data-tab="upload">+ LOAD</button>
@@ -346,6 +352,24 @@ body.listener-mode .tab-bar { max-width: 320px }
     <div class="drive-progress" id="driveProgress"><div class="drive-bar"><div class="drive-fill" id="driveFill"></div></div><div class="drive-status" id="driveStatus"></div></div>
     <div class="art-remove" id="artRemove"></div>
     <div class="track-list" style="padding:8px 0" id="recentUploads"></div>
+  </div>
+  <!-- GitHub URL share -->
+  <div class="drive-bay nav-admin" style="padding:0 12px 12px;border-top:1px solid rgba(255,255,255,0.04)">
+    <div style="text-align:center;padding:8px 0"><h2 style="font-size:14px;font-weight:600;letter-spacing:2px;text-transform:uppercase">Share from GitHub</h2><p style="font-size:9px;color:var(--dim);font-family:monospace">Paste a raw audio URL for all listeners</p></div>
+    <div class="track-select"><input id="ghTitleInput" type="text" placeholder="Track title" style="width:100%;background:#0a0a0a;border:1px solid #222;color:var(--text);padding:8px;border-radius:3px;font-family:inherit;font-size:11px;margin-bottom:4px;outline:none">
+    <input id="ghUrlInput" type="url" placeholder="https://raw.githubusercontent.com/.../track.wav" style="width:100%;background:#0a0a0a;border:1px solid #222;color:var(--text);padding:8px;border-radius:3px;font-family:inherit;font-size:11px;margin-bottom:4px;outline:none"></div>
+    <button id="ghShareBtn" style="width:100%;padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:1px;text-transform:uppercase;font-family:inherit">Share with Listeners</button>
+    <div class="track-list" style="padding:4px 0" id="sharedTracksList"></div>
+  </div>
+  <!-- Auto-discover from Tyrelm repo -->
+  <div class="drive-bay nav-admin" style="padding:0 12px 12px;border-top:1px solid rgba(255,255,255,0.04)">
+    <div class="help-toggle" id="discToggle" style="margin-bottom:4px">Auto-discover from Tyrelm Repo &#9660;</div>
+    <div id="discContent" style="display:none">
+      <p style="font-size:9px;color:var(--dim);font-family:monospace;margin-bottom:4px">Scans your Tyrelm GitHub repo for audio files and shares them to all listeners.</p>
+      <div class="track-select"><input id="ghTokenInput" type="password" placeholder="GitHub token (optional — higher rate limit)" style="width:100%;background:#0a0a0a;border:1px solid #222;color:var(--text);padding:8px;border-radius:3px;font-family:inherit;font-size:11px;margin-bottom:4px;outline:none"></div>
+      <button id="discScanBtn" style="width:100%;padding:10px;background:var(--card);border:1px solid var(--gold-dim);color:var(--gold);border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:1px">&#128269; Scan Tyrelm Repo</button>
+      <div class="track-list" style="padding:4px 0" id="discResults"></div>
+    </div>
   </div>
   <!-- Synced Lyrics Editor — Play-Add-Continue -->
   <div class="lyric-editor">
@@ -448,16 +472,70 @@ const FIREBASE_CONFIG = {
 };
 
 let RTDB = null;
+let FB_STORAGE = null;
 let FB_ENABLED = false;
 
 if (FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY") {
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     RTDB = firebase.database();
+    FB_STORAGE = firebase.storage();
     FB_ENABLED = true;
     const badge = document.getElementById('firebaseBadge');
     if (badge) badge.textContent = 'live';
+    firebase.auth().signInAnonymously().catch(function(e){ console.log('anon auth fail', e); });
   } catch (e) { console.log("Firebase init failed:", e); }
+}
+
+function uploadToFirebase(file, path) {
+  return new Promise(function(res, rej) {
+    if (!FB_ENABLED || !FB_STORAGE) { rej(new Error('Firebase not enabled')); return; }
+    var ref = FB_STORAGE.ref().child(path);
+    var task = ref.put(file);
+    task.on('state_changed', null, rej, function() {
+      task.snapshot.ref.getDownloadURL().then(res).catch(rej);
+    });
+  });
+}
+
+function saveSharedTrack(data) {
+  if (!FB_ENABLED) return Promise.resolve(null);
+  return RTDB.ref('tracks').push(data).then(function(ref) { return ref.key; }).catch(function(){ return null; });
+}
+
+function updateSharedTrack(id, data) {
+  if (!FB_ENABLED) return Promise.resolve();
+  return RTDB.ref('tracks/' + id).update(data).catch(function(){});
+}
+
+function deleteSharedTrack(id) {
+  if (!FB_ENABLED) return Promise.resolve();
+  return RTDB.ref('tracks/' + id).remove().catch(function(){});
+}
+
+function loadSharedTracks() {
+  if (!FB_ENABLED) return Promise.resolve([]);
+  return RTDB.ref('tracks').once('value').then(function(snap) {
+    var data = snap.val();
+    if (!data) return [];
+    var keys = Object.keys(data);
+    return keys.map(function(k) {
+      var t = data[k];
+      return {
+        id: k,
+        title: t.title || 'Untitled',
+        artist: t.artist || '',
+        audioUrl: t.audioUrl || null,
+        coverUrl: t.coverUrl || null,
+        bio: t.bio || '',
+        syncedLyrics: t.syncedLyrics || [],
+        lyrics: null,
+        type: 'firebase',
+        uploaded: t.uploaded || 0,
+        plays: t.plays || 0
+      };
+    });
+  }).catch(function(){ return []; });
 }
 
 function trackPlay(title) {
@@ -553,7 +631,7 @@ function playIt(src, title, el, tid, media) {
   img.className = ''; vid.className = ''; vid.pause(); vid.src = ''; ph.style.display = 'block';
   if(media && media.coverUrl) {
     if(media.coverData && media.coverData.type && media.coverData.type.startsWith('video/')) {
-      vid.src = media.coverUrl; vid.className = 'show'; vid.play().catch(function(){}); ph.style.display = 'none';
+      vid.src = media.coverUrl; vid.className = 'show'; vid.play().catch(()=>{}); ph.style.display = 'none';
     } else {
       img.src = media.coverUrl; img.className = 'show'; ph.style.display = 'none';
     }
@@ -593,7 +671,14 @@ function playIt(src, title, el, tid, media) {
   document.getElementById('tapeLabel').textContent=title; document.getElementById('tapeLabel').className='tape-label active';
   document.getElementById('reelL').className='tape-dot spin'; document.getElementById('reelR').className='tape-dot spin';
   document.getElementById('btnPlayPause').textContent='\u25A0';
-  if(tid) { getAllTracks().then(all=>{const t=all.find(x=>x.id===tid);if(t){t.plays=(t.plays||0)+1;updateTrack(t.id,t);}}); }
+  if(tid) {
+    if (String(tid).indexOf('fb_') === 0 && FB_ENABLED) {
+      var ffid = tid.replace('fb_', '');
+      RTDB.ref('tracks/' + ffid + '/plays').transaction(function(c){ return (c||0)+1; });
+    } else {
+      getAllTracks().then(all=>{const t=all.find(x=>x.id===tid);if(t){t.plays=(t.plays||0)+1;updateTrack(t.id,t);}});
+    }
+  }
   trackPlay(title);
 function fmtTime(s){const m=Math.floor(s/60),sec=s%60;return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0').substring(0,5)}
   a.ontimeupdate = () => { if(a.duration) { document.getElementById('screenBarFill').style.width = (a.currentTime/a.duration*100)+'%'; document.getElementById('screenTime').textContent = fmtTime(a.currentTime)+' / '+fmtTime(a.duration); } };
@@ -623,13 +708,25 @@ function stopPlay() {
 }
 
 // ===== RENDER =====
+var FB_TRACKS_CACHE = [];
 function allTracks() {
-  return getAllTracks().then(function(u){ return [...githubTracks, ...u]; }).catch(function(){ return githubTracks; });
+  return getAllTracks().then(function(u){
+    var combined = [...githubTracks, ...u, ...FB_TRACKS_CACHE];
+    if (FB_ENABLED && !FB_TRACKS_CACHE.length) {
+      loadSharedTracks().then(function(shared) {
+        FB_TRACKS_CACHE = shared.map(function(t){ t.id = 'fb_' + t.id; return t; });
+        var localTitles = u.map(function(t){ return t.title.toLowerCase(); });
+        var newShared = FB_TRACKS_CACHE.filter(function(t){ return localTitles.indexOf(t.title.toLowerCase()) === -1; });
+        if (newShared.length) { renderTracks(); }
+      }).catch(function(){});
+    }
+    return combined;
+  }).catch(function(){ return [...githubTracks, ...FB_TRACKS_CACHE]; });
 }
 function renderTracks() {
   const pl = document.getElementById('playerList'), ll = document.getElementById('libraryList'), le = document.getElementById('libEmpty'), ru = document.getElementById('recentUploads');
   const sel = document.getElementById('lyricTrackSelect');
-  function addDel(e,id){if(IS_LISTENER)return;const d=document.createElement('button');d.className='del-btn';d.textContent='\u2715';d.onclick=async ev=>{ev.stopPropagation();await deleteTrack(id);renderTracks();updateStats();};e.appendChild(d);}
+  function addDel(e,id){if(IS_LISTENER)return;const d=document.createElement('button');d.className='del-btn';d.textContent='\u2715';d.onclick=async ev=>{ev.stopPropagation();if(String(id).indexOf('fb_')===0&&FB_ENABLED){var fid=id.replace('fb_','');await deleteSharedTrack(fid);}else{await deleteTrack(id);}renderTracks();updateStats();};e.appendChild(d);}
   return allTracks().then(function(all) {
     const uploaded = all.filter(function(t){ return t.id && String(t.id).indexOf('gh_') !== 0; });
     pl.innerHTML = '';
@@ -660,13 +757,13 @@ function mkTrack(title, dur, src, id, type, num, media, artist) {
   const pb = document.createElement('button'); pb.className='play-btn'; pb.textContent='\u25B6';
   pb.onclick = function(e) { e.stopPropagation();
     if(curEl===d && curAudio && !curAudio.paused) { curAudio.pause(); pb.textContent='\u25B6'; pb.classList.remove('playing'); document.getElementById('btnPlayPause').textContent='\u25B6'; return; }
-    if(media && media.audioUrl) { playIt(media.audioUrl, title, d, id, media); return; }
+    if(media && media.audioUrl) { loadTrackLyrics(media).then(function(m){ playIt(m.audioUrl, title, d, id, m); }); return; }
     var cached = window._trackCache && window._trackCache[id];
-    if (cached && cached.audioUrl) { playIt(cached.audioUrl, title, d, id, cached); return; }
+    if (cached && cached.audioUrl) { loadTrackLyrics(cached).then(function(m){ playIt(m.audioUrl, title, d, id, m); }); return; }
     getAllTracks().then(function(all){ var t=all.find(function(x){ return x.id===id; }); if(t){
       if(!window._trackCache) window._trackCache={};
       window._trackCache[id]=t;
-      if(t.audioUrl) playIt(t.audioUrl,title,d,id,t);
+      loadTrackLyrics(t).then(function(m){ if(m&&m.audioUrl) playIt(m.audioUrl,title,d,id,m); });
     } });
   };
   d.appendChild(nu); d.appendChild(inf); d.appendChild(pb);
@@ -706,6 +803,7 @@ function setCat(cat) {
     document.getElementById('slotTitle').textContent='Select Album Art'; document.getElementById('slotDesc').textContent='JPG, PNG, MP4, MOV'; refreshArtRemove(); }
 }
 document.querySelectorAll('.drive-cat').forEach(c=>c.addEventListener('click',function(){setCat(this.dataset.cat);}));
+document.getElementById('driveSlot').addEventListener('click', function(e){ if(e.target.tagName!=='INPUT') document.getElementById('fileInput').click(); });
 document.getElementById('fileInput').addEventListener('change', function(){if(this.files.length)handleFiles(this.files);});
 async function handleFiles(files) {
   const p=document.getElementById('driveProgress'),f=document.getElementById('driveFill'),s=document.getElementById('driveStatus');
@@ -731,6 +829,102 @@ async function handleFiles(files) {
   setTimeout(()=>p.classList.remove('active'),1500); renderTracks(); updateStats(); if(currentCat==='art') refreshArtRemove();
 }
 
+// ===== GITHUB URL SHARE =====
+function renderSharedTracks() {
+  if (!FB_ENABLED) return;
+  var el = document.getElementById('sharedTracksList');
+  loadSharedTracks().then(function(tracks) {
+    var fbTracks = tracks.filter(function(t){ return t.audioUrl && String(t.id).indexOf('fb_') !== 0; });
+    if (!fbTracks.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<div style="padding:4px 0;font-size:8px;color:var(--dim);font-family:monospace;letter-spacing:1px">Shared tracks</div>' +
+      fbTracks.map(function(t) {
+        return '<div class="track-item" style="padding:6px 8px"><div class="info"><div class="title">'+t.title+'</div><div class="meta" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px">'+ (t.audioUrl||'') +'</div></div><button class="del-btn" data-fbid="'+t.id+'">\u2715</button></div>';
+      }).join('');
+    el.querySelectorAll('.del-btn').forEach(function(b) {
+      b.addEventListener('click', function() {
+        if (confirm('Remove this shared track?')) {
+          deleteSharedTrack(this.dataset.fbid).then(function(){ renderSharedTracks(); renderTracks(); });
+        }
+      });
+    });
+  });
+}
+document.getElementById('ghShareBtn').addEventListener('click', function() {
+  var title = document.getElementById('ghTitleInput').value.trim();
+  var url = document.getElementById('ghUrlInput').value.trim();
+  if (!title || !url) { alert('Enter both a title and a raw audio URL'); return; }
+  if (!FB_ENABLED) { alert('Firebase is not connected — sharing unavailable'); return; }
+  saveSharedTrack({title:title, artist:'', bio:'', audioUrl:url, coverUrl:null, syncedLyrics:[], uploaded:Date.now(), plays:0}).then(function() {
+    document.getElementById('ghTitleInput').value = '';
+    document.getElementById('ghUrlInput').value = '';
+    renderSharedTracks();
+    renderTracks();
+  });
+});
+// ===== AUTO-DISCOVER FROM TYRELM REPO =====
+// Restore saved token
+(function(){ var t = localStorage.getItem('gh_token'); if(t) document.getElementById('ghTokenInput').value = t; })();
+document.getElementById('discToggle').addEventListener('click', function() {
+  var c = document.getElementById('discContent');
+  c.style.display = c.style.display === 'none' ? 'block' : 'none';
+  this.innerHTML = c.style.display === 'block' ? 'Auto-discover from Tyrelm Repo \u25B2' : 'Auto-discover from Tyrelm Repo \u25BC';
+});
+document.getElementById('ghTokenInput').addEventListener('input', function() {
+  localStorage.setItem('gh_token', this.value.trim());
+});
+document.getElementById('discScanBtn').addEventListener('click', function() {
+  var btn = this, res = document.getElementById('discResults');
+  var token = document.getElementById('ghTokenInput').value.trim();
+  btn.disabled = true; btn.textContent = 'Scanning...';
+  var headers = { 'Accept': 'application/vnd.github.v3+json' };
+  if (token) headers['Authorization'] = 'token ' + token;
+  res.innerHTML = '<div style="padding:8px;font-size:10px;color:var(--dim);text-align:center">Scanning...</div>';
+  var DIRS = ['BROKEN%20DIARY%20EP', 'TIME%20AND%20SPACE%20ALBUM'];
+  var allFiles = [];
+  function fetchDir(dir) {
+    return fetch('https://api.github.com/repos/tyrelmnation/Tyrelm/contents/' + dir, { headers: headers })
+      .then(function(r){ return r.json(); }).then(function(files) {
+        if (!Array.isArray(files)) return;
+        files.forEach(function(f) {
+          if (f.type === 'file' && (f.name.match(/\.(wav|mp3|flac|m4a|ogg|aac)$/i))) {
+            allFiles.push({ name: f.name.replace(/\.[^/.]+$/, ''), url: f.download_url });
+          }
+        });
+      }).catch(function(){});
+  }
+  Promise.all(DIRS.map(fetchDir)).then(function() {
+    if (!allFiles.length) {
+      res.innerHTML = '<div style="padding:8px;font-size:10px;color:var(--dim);text-align:center">No audio files found</div>';
+      btn.disabled = false; btn.textContent = '\uD83D\uDD0D Scan Tyrelm Repo'; return;
+    }
+    // Check which ones are already shared
+    loadSharedTracks().then(function(shared) {
+      var sharedUrls = shared.map(function(s){ return s.audioUrl; });
+      var newFiles = allFiles.filter(function(f){ return sharedUrls.indexOf(f.url) === -1; });
+      if (!newFiles.length) {
+        res.innerHTML = '<div style="padding:8px;font-size:10px;color:var(--dim);text-align:center">All tracks already shared</div>';
+        btn.disabled = false; btn.textContent = '\uD83D\uDD0D Scan Tyrelm Repo'; return;
+      }
+      var artist = 'Tyrelm';
+      res.innerHTML = '<div style="padding:4px 0;font-size:8px;color:var(--dim)">Found ' + newFiles.length + ' new track(s):</div>' +
+        newFiles.map(function(f) {
+          return '<div class="track-item" style="padding:6px 8px"><div class="info"><div class="title">' + f.name + '</div><div class="meta">by ' + artist + '</div></div></div>';
+        }).join('') +
+        '<button id="discAddBtn" style="width:100%;margin-top:4px;padding:10px;background:var(--green);color:var(--bg);border:none;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">\u2713 Share All with Listeners</button>';
+      document.getElementById('discAddBtn').addEventListener('click', function() {
+        this.disabled = true; this.textContent = 'Adding...';
+        var promises = newFiles.map(function(f) {
+          return saveSharedTrack({title: f.name, artist: artist, bio: '', audioUrl: f.url, coverUrl: null, syncedLyrics: [], uploaded: Date.now(), plays: 0});
+        });
+        Promise.all(promises).then(function() {
+          res.innerHTML = '<div style="padding:8px;font-size:10px;color:var(--green);text-align:center">\u2713 ' + newFiles.length + ' track(s) shared!</div>';
+          renderSharedTracks(); renderTracks();
+          btn.disabled = false; btn.textContent = '\uD83D\uDD0D Scan Tyrelm Repo';
+        });
+      });
+    });
+  });
+});
 // ===== TAP-TO-TIME LYRIC EDITOR — Play-Add-Continue =====
 let editAudio = null, editTrackId = null, editLines = [], editInterval = null;
 let editPlaying = false, editAdding = false, editIdx = -1;
@@ -747,13 +941,17 @@ function saveLyrics(id, lines) {
     var track = githubTracks.find(function(t){ return t.id === id; });
     if (track && FB_ENABLED) {
       var slug = track.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
-      RTDB.ref('lyrics/' + slug).set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
+      return RTDB.ref('lyrics/' + slug).set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
     }
-    return;
+    return Promise.resolve();
   }
-  getAllTracks().then(function(all){
+  if (String(id).indexOf('fb_') === 0 && FB_ENABLED) {
+    var fbId = id.replace('fb_', '');
+    return RTDB.ref('tracks/' + fbId + '/syncedLyrics').set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
+  }
+  return getAllTracks().then(function(all){
     var t = all.find(function(x){ return x.id == id; });
-    if(t) { t.syncedLyrics = lines; updateTrack(t.id, t); }
+    if(t) { t.syncedLyrics = lines; return updateTrack(t.id, t); }
   });
 }
 
@@ -786,11 +984,17 @@ document.getElementById('lyricTrackSelect').addEventListener('change', function(
       } else { resolve(); }
     });
   } else {
-    loadPromise = getAllTracks().then(function(all){
-      var t = all.find(function(x){ return x.id == editTrackId; });
-      if(t && t.syncedLyrics && t.syncedLyrics.length) {
+    loadPromise = allTracks().then(function(all){
+      var t = all.find(function(x){ return String(x.id) == String(editTrackId); });
+      if (t && t.syncedLyrics && t.syncedLyrics.length) {
         editLines = t.syncedLyrics.map(function(l){ return {time:l.time, text:l.text}; });
         renderTimedLines();
+      } else if (String(editTrackId).indexOf('fb_') === 0 && FB_ENABLED) {
+        var fid = editTrackId.replace('fb_', '');
+        return RTDB.ref('tracks/' + fid + '/syncedLyrics').once('value').then(function(snap) {
+          var data = snap.val();
+          if (data && data.length) { editLines = data.map(function(l){ return {time: l.time, text: l.text}; }); renderTimedLines(); }
+        }).catch(function(){});
       }
     });
   }
@@ -810,7 +1014,36 @@ document.getElementById('lyricTrackSelect').addEventListener('change', function(
 function findTrackById(id) {
   var gh = githubTracks.find(function(t){ return t.id === id; });
   if (gh) return Promise.resolve(gh);
-  return getAllTracks().then(function(all){ return all.find(function(x){ return x.id == id; }); }).catch(function(){ return null; });
+  // For fb_ tracks, try Firebase RTDB directly
+  if (String(id).indexOf('fb_') === 0 && FB_ENABLED) {
+    var fid = id.replace('fb_', '');
+    return RTDB.ref('tracks/' + fid).once('value').then(function(snap) {
+      var t = snap.val();
+      if (!t) return null;
+      return { id: id, title: t.title || '', artist: t.artist || '', audioUrl: t.audioUrl || null, coverUrl: t.coverUrl || null, bio: t.bio || '', syncedLyrics: t.syncedLyrics || [], lyrics: null, type: 'firebase', plays: t.plays || 0 };
+    }).catch(function(){ return null; });
+  }
+  return allTracks().then(function(all){ return all.find(function(x){ return String(x.id) == String(id); }); }).catch(function(){ return null; });
+}
+function loadTrackLyrics(media) {
+  if (!FB_ENABLED || !media) return Promise.resolve(media);
+  if (String(media.id).indexOf('gh_') === 0) {
+    var slug = (media.title||'').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+    return RTDB.ref('lyrics/' + slug).once('value').then(function(snap) {
+      var data = snap.val();
+      if (data && data.length) { media.syncedLyrics = data.map(function(l){ return {time: l.time, text: l.text}; }); }
+      return media;
+    }).catch(function(){ return media; });
+  }
+  if (String(media.id).indexOf('fb_') === 0) {
+    var fid = media.id.replace('fb_', '');
+    return RTDB.ref('tracks/' + fid + '/syncedLyrics').once('value').then(function(snap) {
+      var data = snap.val();
+      if (data && data.length) { media.syncedLyrics = data.map(function(l){ return {time: l.time, text: l.text}; }); }
+      return media;
+    }).catch(function(){ return media; });
+  }
+  return Promise.resolve(media);
 }
 // Ruler click/drag
 let rulerDragging = false;
@@ -818,8 +1051,9 @@ rulerBar.addEventListener('mousedown', function(e) { rulerDragging = true; seekR
 document.addEventListener('mousemove', function(e) { if(rulerDragging) seekRuler(e); });
 document.addEventListener('mouseup', function() { rulerDragging = false; });
 
-rulerBar.addEventListener('touchstart', function(e) { e.preventDefault(); seekRuler(e.touches[0]); });
+rulerBar.addEventListener('touchstart', function(e) { e.preventDefault(); rulerDragging = true; seekRuler(e.touches[0]); });
 document.addEventListener('touchmove', function(e) { if(rulerDragging) seekRuler(e.touches[0]); });
+document.addEventListener('touchend', function() { rulerDragging = false; });
 
 function seekRuler(e) {
   if(!editTrackId) return;
@@ -970,7 +1204,10 @@ document.getElementById('almSkip').addEventListener('click', function() {
 // Global spacebar shortcut
 document.addEventListener('keydown', function(e) {
   if(e.target.matches('textarea, input, .alm-input')) return;
-  if(e.code === 'Space' && editAdding) { e.preventDefault(); return; }
+  if(e.code === 'Space') {
+    e.preventDefault();
+    if(!editAdding && editTrackId) document.getElementById('tpAddBtn').click();
+  }
 });
 
 function renderTimedLines() {
@@ -1041,17 +1278,20 @@ function renderTimedLines() {
 // Done button — navigates to player and plays the track
 document.getElementById('tlDone').addEventListener('click', function() {
   if(!editTrackId) return;
-  // Stop editor audio
   if(editAudio) { editAudio.pause(); editAudio = null; }
   if(editInterval) { clearInterval(editInterval); editInterval = null; }
   editPlaying = false;
-  saveLyrics(editTrackId, editLines);
-  renderTracks().then(function() {
-    document.querySelector('[data-tab="player"]').click();
-    var items = document.querySelectorAll('#playerList .track-item');
-    for(var i=0; i<items.length; i++) {
-      if(String(items[i].dataset.id) === String(editTrackId)) { items[i].click(); break; }
-    }
+  saveLyrics(editTrackId, editLines).catch(function(e) { console.error('saveLyrics failed', e); }).then(function() {
+    renderTracks().then(function() {
+      document.querySelector('[data-tab="player"]').click();
+      findTrackById(editTrackId).then(function(t) {
+        if (!t || !t.audioUrl) { return; }
+        loadTrackLyrics(t).then(function(m) {
+          document.querySelector('[data-tab="player"]').click();
+          playIt(m.audioUrl, t.title || 'Untitled', null, t.id, m);
+        });
+      });
+    });
   });
 });
 
@@ -1093,7 +1333,7 @@ function refreshBioSelect() {
     all.forEach(function(t) { var o = document.createElement('option'); o.value = t.id; o.textContent = t.title; sel.appendChild(o); });
     if(prev && [...sel.options].some(function(o){ return o.value===prev; })) sel.value = prev;
     if(sel.value) { 
-      var t = all.find(function(x) { return x.id == sel.value; });
+      var t = all.find(function(x) { return String(x.id) == String(sel.value); });
       if (String(sel.value).indexOf('gh_') === 0) {
         if (FB_ENABLED) {
           var slug = (t && t.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
@@ -1101,6 +1341,11 @@ function refreshBioSelect() {
             document.getElementById('bioText').value = snap.val() || '';
           }).catch(function(){});
         }
+      } else if (String(sel.value).indexOf('fb_') === 0 && FB_ENABLED) {
+        var fid = sel.value.replace('fb_', '');
+        RTDB.ref('tracks/' + fid + '/bio').once('value').then(function(snap) {
+          document.getElementById('bioText').value = snap.val() || '';
+        }).catch(function(){});
       } else {
         document.getElementById('bioText').value = (t && t.bio) || '';
       }
@@ -1119,8 +1364,15 @@ document.getElementById('bioTrackSelect').addEventListener('change', function() 
     }
     return;
   }
+  if (String(this.value).indexOf('fb_') === 0 && FB_ENABLED) {
+    var fid = this.value.replace('fb_', '');
+    RTDB.ref('tracks/' + fid + '/bio').once('value').then(function(snap) {
+      document.getElementById('bioText').value = snap.val() || '';
+    }).catch(function(){});
+    return;
+  }
   getAllTracks().then(function(all) {
-    var t = all.find(function(x) { return x.id == this.value; }.bind(this));
+    var t = all.find(function(x) { return String(x.id) == String(this.value); }.bind(this));
     document.getElementById('bioText').value = (t && t.bio) || '';
   }.bind(this));
 });
@@ -1139,8 +1391,16 @@ document.getElementById('bioSave').addEventListener('click', function() {
     }
     return;
   }
+  if (String(id).indexOf('fb_') === 0 && FB_ENABLED) {
+    var fid = id.replace('fb_', '');
+    RTDB.ref('tracks/' + fid + '/bio').set(bio).then(function() {
+      document.getElementById('bioSave').textContent = 'Saved!';
+      setTimeout(function(){ document.getElementById('bioSave').textContent = 'Save Bio'; }, 1500);
+    }).catch(function(){});
+    return;
+  }
   getAllTracks().then(function(all) {
-    var t = all.find(function(x) { return x.id == id; });
+    var t = all.find(function(x) { return String(x.id) == String(id); });
     if(t) { t.bio = bio; updateTrack(t.id, t).then(function() { document.getElementById('bioSave').textContent = 'Saved!'; setTimeout(function(){ document.getElementById('bioSave').textContent = 'Save Bio'; }, 1500); refreshBioSelect(); }); }
   });
 });
@@ -1198,7 +1458,7 @@ document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',func
   const tabId = 'tab-' + this.dataset.tab;
   const el = document.getElementById(tabId);
   if (el) el.classList.add('active');
-  if(this.dataset.tab==='upload') refreshLyricSelect();
+  if(this.dataset.tab==='upload') { refreshLyricSelect(); renderSharedTracks(); }
   if(this.dataset.tab==='account') refreshBioSelect();
 }));
 
@@ -1232,21 +1492,21 @@ function updateStats() {
 
 // Hardcoded fallback tracks in case tracks.json fails to load
 var FALLBACK_TRACKS = [
-  {title:"FALL BACK", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/FALL%20BACK.m4a"},
-  {title:"BROKEN DIARY LETTERS", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/BROKEN%20DIARY%20LETTERS.m4a"},
-  {title:"ALL OF ME", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/ALL%20OF%20ME.m4a"},
-  {title:"BROKEN LOVE STORY", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/BROKEN%20LOVE%20STORY.m4a"},
-  {title:"EMPTY PROMISES", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/EMPTY%20PROMISES.m4a"},
-  {title:"FRIDAY NIGHTS", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/FRIDAY%20NIGHTS.m4a"},
-  {title:"BROKEN DIARY OUTRO", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/BROKEN%20DIARY%20OUTRO.m4a"},
-  {title:"24/7", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/24-7.m4a"},
-  {title:"BIG PICKLE", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/BIG%20PICKLE.m4a"},
-  {title:"CIRCLE OF LOVE", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/CIRCLE%20OF%20LOVE.m4a"},
-  {title:"COME CLOSER", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/COME%20CLOSER.m4a"},
-  {title:"DANGEROUS", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/DANGEROUS.m4a"},
-  {title:"GAMECHANGER", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/GAMECHANGER.m4a"},
-  {title:"MAGIC", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/MAGIC.m4a"},
-  {title:"MIAMI", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/MIAMI.m4a"}
+  {title:"We", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/WE.m4a"},
+  {title:"Reasons", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/REASONS%20master.m4a"},
+  {title:"Ghost", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/GHOST%20MASTER.m4a"},
+  {title:"Better Person", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/BETTERPERSONTyrell.wavMASTER.m4a"},
+  {title:"Be With Me", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/Be%20with%20me%20Master.m4a"},
+  {title:"Fade Away", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/FADE%20AWAY%20TYRELM.m4a"},
+  {title:"Him Song", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/HIM%20SONG%20TYRELM.m4a"},
+  {title:"Lifeline", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/LIFELINE.m4a"},
+  {title:"Lightning", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/LIGHTNING%20MASTER.m4a"},
+  {title:"No Love", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/NO%20LOVE%20MASTER.m4a"},
+  {title:"Real", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/REAL%20MASTER.m4a"},
+  {title:"See Me", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/SEE%20ME.m4a"},
+  {title:"Time And Space", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/TIME%20AND%20SPACE%20MASTER.m4a"},
+  {title:"Time", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/TIME%20TYRELM.m4a"},
+  {title:"With Me", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/WITH%20ME%20OUTRO.m4a"}
 ];
 function normalizeAudioUrl(url) {
   if (!url) return url;
