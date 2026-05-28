@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-<script src="https://unpkg.com/intasend-inlinejs-sdk@4.0.5/build/intasend-inline.js"></script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -108,30 +108,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .track-item .del-btn:hover{color:#ff6b6b}
 .track-item .tag{font-size:7px;color:var(--dim);border:1px solid rgba(255,255,255,0.06);border-radius:2px;padding:1px 5px;flex-shrink:0;font-family:monospace}
 
-/* ===== LOCK SCREEN ===== */
-.lock-overlay{position:fixed;inset:0;z-index:9999;background:#080808;display:flex;align-items:center;justify-content:center;padding:32px;font-family:'Inter',sans-serif}
-.lock-overlay.hidden{display:none}
-.lock-box{max-width:320px;width:100%;text-align:center}
-.lock-box .lock-icon{font-size:48px;margin-bottom:8px;opacity:0.3}
-.lock-box h1{font-size:18px;font-weight:600;color:var(--gold);margin-bottom:2px;letter-spacing:2px}
-.lock-box .lock-sub{font-size:9px;color:var(--dim);font-family:monospace;letter-spacing:1px;margin-bottom:20px}
-.lock-box input{width:100%;padding:12px;background:#111;border:2px solid #222;border-radius:4px;color:var(--text);font-size:18px;font-family:monospace;text-align:center;letter-spacing:4px;outline:none;margin-bottom:10px;text-transform:uppercase}
-.lock-box input:focus{border-color:var(--gold-dim)}
-.lock-box button{width:100%;padding:12px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px;text-transform:uppercase}
-.lock-box button:hover{background:#e0bb60}
-.lock-box .lock-error{color:#ff6b6b;font-size:10px;margin-top:6px;min-height:20px;font-family:monospace}
-.lock-box .lock-buy{margin-top:16px;padding:12px;background:#111;border:1px solid #222;border-radius:4px;font-size:10px;color:var(--dim);line-height:1.6}
-.lock-box .lock-buy strong{color:var(--text)}
-
-/* Access page */
-.access-page{text-align:center;padding:32px 16px}
-.access-page h1{font-size:22px;font-weight:700;color:var(--gold);margin-bottom:8px}
-.access-page .access-plan{border:1px solid #222;border-radius:4px;padding:16px;margin:10px 0;background:var(--card)}
-.access-page .access-plan .price{font-size:24px;font-weight:700;color:var(--gold)}
-.access-page .access-plan .desc{font-size:10px;color:var(--dim);font-family:monospace;margin-top:4px}
-.access-page .access-code{display:none;margin-top:16px}
-.access-page .access-code.show{display:block}
-
 /* Admin code gen */
 .code-gen{background:var(--card);border:1px solid #1a1a1a;border-radius:4px;padding:12px;margin-top:10px}
 .code-gen h3{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
@@ -142,7 +118,6 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .code-gen .gen-result.show{display:block}
 .code-gen .gen-result .code{font-size:22px;font-weight:700;color:var(--gold);letter-spacing:6px;font-family:monospace;word-break:break-all}
 .code-gen .gen-result .note{font-size:8px;color:var(--dim);margin-top:4px}
-/* ===== END LOCK SCREEN ===== */
 
 /* ===== TAP-TO-TIME LYRIC EDITOR ===== */
 .lyric-editor{padding:0 12px 12px}
@@ -296,32 +271,16 @@ body.listener-mode #resetBtn { display: none !important }
 body.listener-mode .drive-bay { display: none !important }
 body.listener-mode .dash-settings { display: none !important }
 body.listener-mode .tab-bar { max-width: 320px }
-body.listener-mode .nav-unlock { display: none !important }
+
 </style>
 </head>
 <body>
 
-<!-- Lock Screen Overlay -->
-<div class="lock-overlay" id="lockOverlay">
-  <div class="lock-box">
-    <div class="lock-icon">&#9835;</div>
-    <h1>GAME CHANGER-TM</h1>
-    <div class="lock-sub">Tyrelm Nation</div>
-    <input type="text" id="unlockInput" placeholder="ENTER CODE" maxlength="20" autocomplete="off">
-    <button id="unlockBtn">Unlock</button>
-    <div class="lock-error" id="unlockError"></div>
-    <div class="lock-buy" style="display:flex;flex-direction:column;gap:6px">
-      <button class="pay-btn" data-plan="1day" data-amount="20" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Day — 20 KES</button>
-      <button class="pay-btn" data-plan="1week" data-amount="50" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Week — 50 KES</button>
-      <button class="pay-btn" data-plan="1month" data-amount="100" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Month — 100 KES</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="tab-bar">
   <button class="tab-btn active" data-tab="player">&#9654; PLAY</button>
   <button class="tab-btn" data-tab="library">&#9835; LIBRARY</button>
-  <button class="tab-btn nav-unlock" data-tab="access" style="display:none">&#128274; ACCESS</button>
   <button class="tab-btn nav-admin" data-tab="upload">+ LOAD</button>
   <button class="tab-btn nav-admin" data-tab="account">&#9787; CONSOLE</button>
 </div>
@@ -371,34 +330,8 @@ body.listener-mode .nav-unlock { display: none !important }
   <div class="empty-box" id="libEmpty"><div class="e-icon">&#9835;</div><p>Nothing loaded yet</p><p class="sub">Go to Load to import your music</p></div>
 </div>
 
-<!-- ===== ACCESS ===== -->
-<div class="tab-content" id="tab-access">
-  <div class="access-page">
-    <h1>GAME CHANGER-TM</h1>
-    <p style="font-size:10px;color:var(--dim);font-family:monospace;margin-bottom:16px">Unlock full access</p>
-    <div class="access-plan">
-      <div class="price">—</div>
-      <div class="desc">Enter your unlock code below</div>
-    </div>
-    <div class="access-code show" id="accessEnterSection">
-      <input type="text" id="accessUnlockInput" placeholder="ENTER CODE" maxlength="20" autocomplete="off" style="width:100%;padding:12px;background:#111;border:2px solid #222;border-radius:4px;color:var(--text);font-size:16px;font-family:monospace;text-align:center;letter-spacing:4px;outline:none;margin-bottom:8px;text-transform:uppercase">
-      <button id="accessUnlockBtn" style="width:100%;padding:12px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:2px">Unlock</button>
-      <div id="accessError" style="color:#ff6b6b;font-size:10px;margin-top:6px;font-family:monospace"></div>
-    </div>
-      <div style="margin-top:20px;padding:16px;background:#111;border:1px solid #222;border-radius:4px;font-size:10px;color:var(--dim);line-height:1.8;text-align:left">
-      <strong style="color:var(--text)">Get a code:</strong><br>
-      &#8226; 1 Day — 20 KES<br>
-      &#8226; 1 Week — 50 KES<br>
-      &#8226; 1 Month — 100 KES<br>
-    </div>
-    <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px">
-      <button class="pay-btn" data-plan="1day" data-amount="20" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Day — 20 KES</button>
-      <button class="pay-btn" data-plan="1week" data-amount="50" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Week — 50 KES</button>
-      <button class="pay-btn" data-plan="1month" data-amount="100" style="padding:10px;background:var(--gold);color:var(--bg);border:none;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer">Buy 1 Month — 100 KES</button>
-    </div>
-    <div style="margin-top:8px;font-size:8px;color:var(--dim);font-family:monospace" id="payStatus"></div>
-  </div>
-</div>
+
+
 
 <!-- ===== LOAD (Audio + Art) ===== -->
 <div class="tab-content" id="tab-upload">
@@ -408,8 +341,8 @@ body.listener-mode .nav-unlock { display: none !important }
       <div class="drive-cat active" data-cat="audio">Audio</div>
       <div class="drive-cat" data-cat="art">Album Art</div>
     </div>
-    <div class="drive-slot" id="driveSlot"><div class="s-icon">&#128190;</div><h3 id="slotTitle">Select Audio Files</h3><p id="slotDesc">MP3, WAV, FLAC</p></div>
-    <input type="file" id="fileInput" accept="audio/*" multiple style="display:none">
+    <label class="drive-slot" id="driveSlot"><div class="s-icon">&#128190;</div><h3 id="slotTitle">Select Audio Files</h3><p id="slotDesc">MP3, WAV, FLAC</p>
+    <input type="file" id="fileInput" accept="audio/*" multiple style="position:absolute;opacity:0;pointer-events:none;width:0;height:0"></label>
     <div class="drive-progress" id="driveProgress"><div class="drive-bar"><div class="drive-fill" id="driveFill"></div></div><div class="drive-status" id="driveStatus"></div></div>
     <div class="art-remove" id="artRemove"></div>
     <div class="track-list" style="padding:8px 0" id="recentUploads"></div>
@@ -482,26 +415,7 @@ body.listener-mode .nav-unlock { display: none !important }
       <div class="dash-card"><div class="num" id="statUploads">0</div><div class="lbl">Loaded</div></div>
       <div class="dash-card"><div class="num" id="statPlays">0</div><div class="lbl">Plays</div><div id="firebaseBadge" style="font-size:7px;color:#555;font-family:monospace;margin-top:2px">local only</div></div>
     </div>
-    <div class="code-gen nav-admin">
-      <h3>&#128179; IntaSend Setup</h3>
-      <input id="intasendKey" type="text" placeholder="Publishable Key (from intasend.com)" style="width:100%;padding:8px;background:#0a0a0a;border:1px solid #222;color:var(--text);border-radius:3px;font-size:10px;margin-bottom:4px;font-family:inherit">
-      <button id="intasendSaveBtn" style="width:100%;padding:8px;background:var(--gold);color:var(--bg);border:none;border-radius:3px;cursor:pointer;font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:10px">Save Key</button>
-      <div style="font-size:8px;color:var(--dim);font-family:monospace;padding:4px 0"><a href="https://payment.intasend.com/account/signup/" target="_blank" style="color:var(--gold)">Sign up at IntaSend</a> → get your publishable key from Settings</div>
-    </div>
-    <div class="code-gen nav-admin">
-      <h3>&#128273; Generate Unlock Codes</h3>
-      <select id="codePlanSelect">
-        <option value="1day">1 Day — 20 KES</option>
-        <option value="1week">1 Week — 50 KES</option>
-        <option value="1month">1 Month — 100 KES</option>
-      </select>
-      <button class="gen-btn" id="genCodeBtn">&#43; Generate Code</button>
-      <div class="gen-result" id="genCodeResult">
-        <div class="code" id="genCodeValue"></div>
-        <div class="note">Send this code to the buyer</div>
-        <button id="genCodeCopy" style="margin-top:6px;padding:6px 16px;background:transparent;border:1px solid var(--gold-dim);color:var(--gold);border-radius:3px;cursor:pointer;font-size:9px;letter-spacing:1px;font-family:inherit">Copy</button>
-      </div>
-    </div>
+
     <div class="dash-settings">
       <div class="set-row"><div><div class="lbl">Auto-advance</div><div class="desc">Play next track automatically</div></div><div class="toggle-sw on" id="togAuto"></div></div>
       <div class="set-row"><div><div class="lbl">Game Mode</div><div class="desc">Retro console aesthetic</div></div><div class="toggle-sw on" id="togGame"></div></div>
@@ -566,74 +480,7 @@ function getFirebasePlays() {
 }
 // ===== END FIREBASE =====
 
-// ===== UNLOCK SYSTEM =====
-const UNLOCK_STORAGE_KEY = 'tyrelm_unlock';
 
-function getUnlockStatus() {
-  try {
-    const data = JSON.parse(localStorage.getItem(UNLOCK_STORAGE_KEY));
-    if (!data || !data.expiry) return null;
-    if (Date.now() > data.expiry) {
-      localStorage.removeItem(UNLOCK_STORAGE_KEY);
-      return null;
-    }
-    return data;
-  } catch(e) { return null; }
-}
-
-function setUnlocked(plan) {
-  const durations = { '1day': 86400000, '1week': 604800000, '1month': 2592000000 };
-  const dur = durations[plan] || 86400000;
-  const data = { unlocked: true, plan: plan, expiry: Date.now() + dur };
-  localStorage.setItem(UNLOCK_STORAGE_KEY, JSON.stringify(data));
-  return data;
-}
-
-function checkAccess() {
-  const overlay = document.getElementById('lockOverlay');
-  const unlockNav = document.querySelector('.nav-unlock');
-  if (!IS_LISTENER) {
-    overlay.classList.add('hidden');
-    if (unlockNav) unlockNav.style.display = 'none';
-    return;
-  }
-  const unlock = getUnlockStatus();
-  if (!unlock) {
-    overlay.classList.remove('hidden');
-    if (unlockNav) unlockNav.style.display = 'block';
-  } else {
-    overlay.classList.add('hidden');
-    if (unlockNav) unlockNav.style.display = 'none';
-  }
-}
-
-function doUnlock(code, fromPage) {
-  const err = fromPage ? document.getElementById('accessError') : document.getElementById('unlockError');
-  const clean = code.trim().toUpperCase();
-  err.textContent = '';
-  if (!clean) { err.textContent = 'Enter a code'; return; }
-  // Master code — works offline, never expires
-  if (clean === '4RE@LM') {
-    err.textContent = 'Master code accepted!';
-    err.style.color = 'var(--green)';
-    setUnlocked('1month');
-    setTimeout(function() { location.reload(); }, 1000);
-    return;
-  }
-  if (!FB_ENABLED) { err.textContent = 'Database not connected'; return; }
-  RTDB.ref('codes/' + clean).once('value').then(snap => {
-    const data = snap.val();
-    if (!data) { err.textContent = 'Invalid code'; return; }
-    if (data.used) { err.textContent = 'Code already used'; return; }
-    // Mark as used in Firebase
-    RTDB.ref('codes/' + clean).update({ used: true, usedAt: firebase.database.ServerValue.TIMESTAMP });
-    // Save unlock
-    setUnlocked(data.plan);
-    // Hide overlay or show success
-    setTimeout(() => { location.reload(); }, 500);
-  }).catch(() => { err.textContent = 'Check your connection'; });
-}
-// ===== END UNLOCK =====
 
 // ===== INDEXED DB =====
 const DB = 'tyrelm_console_v7';
@@ -696,6 +543,7 @@ function deleteTrack(id) {
 // ===== PLAYER =====
 let curAudio = null, curEl = null, playCount = 0;
 let syncLyrics = [], syncInterval = null;
+let githubTracks = [];
 
 function playIt(src, title, el, tid, media) {
   stopPlay();
@@ -705,7 +553,7 @@ function playIt(src, title, el, tid, media) {
   img.className = ''; vid.className = ''; vid.pause(); vid.src = ''; ph.style.display = 'block';
   if(media && media.coverUrl) {
     if(media.coverData && media.coverData.type && media.coverData.type.startsWith('video/')) {
-      vid.src = media.coverUrl; vid.className = 'show'; vid.play().catch(()=>{}); ph.style.display = 'none';
+      vid.src = media.coverUrl; vid.className = 'show'; vid.play().catch(function(){}); ph.style.display = 'none';
     } else {
       img.src = media.coverUrl; img.className = 'show'; ph.style.display = 'none';
     }
@@ -718,9 +566,24 @@ function playIt(src, title, el, tid, media) {
     document.getElementById('lyricsScroll').innerHTML = media.lyrics.split('\n').map(l=>'<div class="l-line">'+(l||'&nbsp;')+'</div>').join('');
   } else { document.getElementById('lyricsScroll').innerHTML = '<span style="font-size:9px;color:rgba(255,255,255,0.06);font-family:monospace">NO LYRICS</span>'; }
   document.getElementById('screenBio').textContent = (media && media.bio) || '';
-  const a = new Audio(src);
+  const normalizedSrc = normalizeAudioUrl(src);
+  const a = new Audio(normalizedSrc);
   a.volume = parseInt(document.getElementById('volSlider').value)/100;
-  a.play().catch(()=>{});
+  var playPromise = a.play();
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(function(err) {
+      if (normalizedSrc.indexOf('raw.githubusercontent.com') !== -1 || normalizedSrc.indexOf('cdn.jsdelivr.net') !== -1) {
+        fetch(normalizedSrc).then(function(r){ return r.blob(); }).then(function(blob){
+          var ext = normalizedSrc.split('.').pop().toLowerCase();
+          var mime = ext==='mp3'?'audio/mpeg':ext==='wav'?'audio/wav':ext==='m4a'?'audio/mp4':ext==='flac'?'audio/flac':ext==='ogg'?'audio/ogg':ext==='aac'?'audio/aac':'audio/mpeg';
+          var fixedBlob = blob.type.indexOf('audio/')===0 ? blob : new Blob([blob], {type: mime});
+          var fixedUrl = URL.createObjectURL(fixedBlob);
+          a.src = fixedUrl;
+          a.play().catch(function(){});
+        }).catch(function(){});
+      }
+    });
+  }
   curAudio = a; curEl = el; playCount++;
   if(el) { el.classList.add('playing'); const b=el.querySelector('.play-btn'); if(b){b.textContent='\u25A0';b.classList.add('playing');} }
   document.getElementById('npTrack').textContent = title;
@@ -760,26 +623,29 @@ function stopPlay() {
 }
 
 // ===== RENDER =====
+function allTracks() {
+  return getAllTracks().then(function(u){ return [...githubTracks, ...u]; }).catch(function(){ return githubTracks; });
+}
 function renderTracks() {
   const pl = document.getElementById('playerList'), ll = document.getElementById('libraryList'), le = document.getElementById('libEmpty'), ru = document.getElementById('recentUploads');
   const sel = document.getElementById('lyricTrackSelect');
   function addDel(e,id){if(IS_LISTENER)return;const d=document.createElement('button');d.className='del-btn';d.textContent='\u2715';d.onclick=async ev=>{ev.stopPropagation();await deleteTrack(id);renderTracks();updateStats();};e.appendChild(d);}
-  return getAllTracks().then(uploaded => {
+  return allTracks().then(function(all) {
+    const uploaded = all.filter(function(t){ return t.id && String(t.id).indexOf('gh_') !== 0; });
     pl.innerHTML = '';
-    if(uploaded.length) { uploaded.forEach(t=>{const it=mkTrack(t.title,'--:--',null,t.id,'uploaded',0,t,t.artist||'');pl.appendChild(it);}); }
-    else { pl.innerHTML='<div class="empty-box"><div class="e-icon">&#9654;</div><p>No tracks loaded</p><p class="sub">Go to Load to import your music</p></div>'; }
+    all.forEach(function(t){ const it=mkTrack(t.title,'--:--',null,t.id,t.type||'github',0,t,t.artist||''); pl.appendChild(it); });
     ll.innerHTML = '';
-    if(uploaded.length===0) { le.style.display='block'; } else { le.style.display='none'; uploaded.forEach(t=>{const it=mkTrack(t.title,'--:--',null,t.id,'uploaded',0,t,t.artist||'');ll.appendChild(it);}); }
+    if(all.length===0) { le.style.display='block'; } else { le.style.display='none'; all.forEach(function(t){ const it=mkTrack(t.title,'--:--',null,t.id,t.type||'github',0,t,t.artist||''); ll.appendChild(it); }); }
     ru.innerHTML = '';
     if(uploaded.length>0) {
       const h=document.createElement('div'); h.style.cssText='padding:4px 0;font-size:8px;color:var(--dim);font-family:monospace;letter-spacing:1px'; h.textContent='Recently loaded'; ru.appendChild(h);
-      uploaded.slice(-3).reverse().forEach(t=>{const it=mkTrack(t.title,'--:--',null,t.id,'uploaded',0,t,t.artist||'');addDel(it,t.id);ru.appendChild(it);});
+      uploaded.slice(-3).reverse().forEach(function(t){const it=mkTrack(t.title,'--:--',null,t.id,'uploaded',0,t,t.artist||'');addDel(it,t.id);ru.appendChild(it);});
     }
     // Update lyric track selector
     const prevVal = sel.value;
     sel.innerHTML = '<option value="">— Select a track —</option>';
-    uploaded.forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.title + (t.syncedLyrics&&t.syncedLyrics.length ? ' (lyrics)' : ''); sel.appendChild(o); });
-    if(prevVal && [...sel.options].some(o=>o.value===prevVal)) sel.value = prevVal;
+    all.forEach(function(t){ const o = document.createElement('option'); o.value = t.id; o.textContent = t.title + (t.syncedLyrics&&t.syncedLyrics.length ? ' (lyrics)' : ''); sel.appendChild(o); });
+    if(prevVal && [...sel.options].some(function(o){ return o.value===prevVal; })) sel.value = prevVal;
     updateStats();
   });
 }
@@ -792,9 +658,16 @@ function mkTrack(title, dur, src, id, type, num, media, artist) {
   if(media && media.coverUrl) tags.push('ART');
   inf.innerHTML = '<div class="title">'+title+'</div><div class="meta">'+(artist?'by '+artist:'')+'</div>'+(tags.length?'<div class="has">'+tags.join(' ')+'</div>':'');
   const pb = document.createElement('button'); pb.className='play-btn'; pb.textContent='\u25B6';
-  pb.onclick = e => { e.stopPropagation();
+  pb.onclick = function(e) { e.stopPropagation();
     if(curEl===d && curAudio && !curAudio.paused) { curAudio.pause(); pb.textContent='\u25B6'; pb.classList.remove('playing'); document.getElementById('btnPlayPause').textContent='\u25B6'; return; }
-    getAllTracks().then(all=>{const t=all.find(x=>x.id===id);if(t&&t.audioUrl)playIt(t.audioUrl,title,d,id,t);});
+    if(media && media.audioUrl) { playIt(media.audioUrl, title, d, id, media); return; }
+    var cached = window._trackCache && window._trackCache[id];
+    if (cached && cached.audioUrl) { playIt(cached.audioUrl, title, d, id, cached); return; }
+    getAllTracks().then(function(all){ var t=all.find(function(x){ return x.id===id; }); if(t){
+      if(!window._trackCache) window._trackCache={};
+      window._trackCache[id]=t;
+      if(t.audioUrl) playIt(t.audioUrl,title,d,id,t);
+    } });
   };
   d.appendChild(nu); d.appendChild(inf); d.appendChild(pb);
   if(tags.length) { const tag = document.createElement('span'); tag.className='tag'; tag.textContent=tags.join('/'); d.appendChild(tag); }
@@ -833,8 +706,7 @@ function setCat(cat) {
     document.getElementById('slotTitle').textContent='Select Album Art'; document.getElementById('slotDesc').textContent='JPG, PNG, MP4, MOV'; refreshArtRemove(); }
 }
 document.querySelectorAll('.drive-cat').forEach(c=>c.addEventListener('click',function(){setCat(this.dataset.cat);}));
-document.getElementById('driveSlot').onclick = ()=>document.getElementById('fileInput').click();
-document.getElementById('fileInput').onchange = function(){if(this.files.length)handleFiles(this.files);};
+document.getElementById('fileInput').addEventListener('change', function(){if(this.files.length)handleFiles(this.files);});
 async function handleFiles(files) {
   const p=document.getElementById('driveProgress'),f=document.getElementById('driveFill'),s=document.getElementById('driveStatus');
   p.classList.add('active'); let total=files.length, done=0;
@@ -871,8 +743,16 @@ const rulerLines = document.getElementById('rulerLines');
 
 // Save/Load lyrics directly on every change
 function saveLyrics(id, lines) {
-  getAllTracks().then(all => {
-    const t = all.find(x => x.id == id);
+  if (String(id).indexOf('gh_') === 0) {
+    var track = githubTracks.find(function(t){ return t.id === id; });
+    if (track && FB_ENABLED) {
+      var slug = track.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+      RTDB.ref('lyrics/' + slug).set(lines.map(function(l){ return {time: l.time, text: l.text}; }));
+    }
+    return;
+  }
+  getAllTracks().then(function(all){
+    var t = all.find(function(x){ return x.id == id; });
     if(t) { t.syncedLyrics = lines; updateTrack(t.id, t); }
   });
 }
@@ -889,17 +769,35 @@ document.getElementById('lyricTrackSelect').addEventListener('change', function(
     return;
   }
   // Restore saved lyrics
-  getAllTracks().then(all => {
-    const t = all.find(x => x.id == editTrackId);
-    const status = document.getElementById('lyricStatus');
-    if(t && t.syncedLyrics && t.syncedLyrics.length) {
-      editLines = t.syncedLyrics.map(l => ({time:l.time, text:l.text}));
-      renderTimedLines();
-      status.textContent = 'LYRICS';
-      status.style.color = '#00ff88';
-    } else {
-      status.textContent = '';
-    }
+  var loadPromise;
+  if (String(editTrackId).indexOf('gh_') === 0) {
+    loadPromise = new Promise(function(resolve) {
+      var track = githubTracks.find(function(t){ return t.id === editTrackId; });
+      if (track && FB_ENABLED) {
+        var slug = track.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+        RTDB.ref('lyrics/' + slug).once('value').then(function(snap) {
+          var data = snap.val();
+          if (data && data.length) {
+            editLines = data.map(function(l){ return {time: l.time, text: l.text}; });
+            renderTimedLines();
+          }
+          resolve();
+        }).catch(function(){ resolve(); });
+      } else { resolve(); }
+    });
+  } else {
+    loadPromise = getAllTracks().then(function(all){
+      var t = all.find(function(x){ return x.id == editTrackId; });
+      if(t && t.syncedLyrics && t.syncedLyrics.length) {
+        editLines = t.syncedLyrics.map(function(l){ return {time:l.time, text:l.text}; });
+        renderTimedLines();
+      }
+    });
+  }
+  loadPromise.then(function(){
+    var status = document.getElementById('lyricStatus');
+    if(editLines.length) { status.textContent = 'LYRICS'; status.style.color = '#00ff88'; }
+    else { status.textContent = ''; }
   });
   document.getElementById('tpRuler').classList.add('active');
   document.getElementById('timingPanel').classList.add('active');
@@ -909,6 +807,11 @@ document.getElementById('lyricTrackSelect').addEventListener('change', function(
   updateRuler();
 });
 
+function findTrackById(id) {
+  var gh = githubTracks.find(function(t){ return t.id === id; });
+  if (gh) return Promise.resolve(gh);
+  return getAllTracks().then(function(all){ return all.find(function(x){ return x.id == id; }); }).catch(function(){ return null; });
+}
 // Ruler click/drag
 let rulerDragging = false;
 rulerBar.addEventListener('mousedown', function(e) { rulerDragging = true; seekRuler(e); });
@@ -947,36 +850,34 @@ document.getElementById('tpPlayBtn').addEventListener('click', function() {
     editIdx = -1;
   }
 
-  getAllTracks().then(all => {
-    const t = all.find(x => x.id == editTrackId);
+  var btn = this;
+  findTrackById(editTrackId).then(function(t) {
     if(!t || !t.audioUrl) return;
 
       if(editPlaying) {
-        // Pause
         if(editAudio) editAudio.pause();
         editPlaying = false;
-        this.textContent = '\u25B6 Play';
-        this.className = 'tp-btn-play';
+        btn.textContent = '\u25B6 Play';
+        btn.className = 'tp-btn-play';
         if(editInterval) { clearInterval(editInterval); editInterval = null; }
         return;
       }
 
-    // Start/resume
     if(!editAudio) {
       editAudio = new Audio(t.audioUrl);
       editAudio.volume = 0.8;
     }
     editAudio.play();
     editPlaying = true;
-    this.textContent = '\u25A0 Pause';
-    this.className = 'tp-btn-play playing';
+    btn.textContent = '\u25A0 Pause';
+    btn.className = 'tp-btn-play playing';
     document.getElementById('tpAddBtn').disabled = false;
 
     if(editInterval) clearInterval(editInterval);
-    editInterval = setInterval(() => {
+    editInterval = setInterval(function() {
       if(editAudio && editAudio.currentTime !== undefined && editAudio.duration) {
-        const ct = editAudio.currentTime;
-        const pct = ct / editAudio.duration;
+        var ct = editAudio.currentTime;
+        var pct = ct / editAudio.duration;
         rulerFill.style.width = (pct * 100) + '%';
         rulerTick.style.left = (pct * 100) + '%';
         updateRulerTime(ct);
@@ -997,17 +898,15 @@ document.getElementById('tpAddBtn').addEventListener('click', function() {
   if(!editTrackId) return;
   if(editAdding) return;
 
-  getAllTracks().then(all => {
-    const t = all.find(x => x.id == editTrackId);
+  var addBtn = this;
+  findTrackById(editTrackId).then(function(t) {
     if(!t || !t.audioUrl) return;
 
-    // Init audio if needed
     if(!editAudio) {
       editAudio = new Audio(t.audioUrl);
       editAudio.volume = 0.8;
     }
 
-    // Pause if playing
     if(editPlaying) {
       editAudio.pause();
       editPlaying = false;
@@ -1016,15 +915,14 @@ document.getElementById('tpAddBtn').addEventListener('click', function() {
       if(editInterval) { clearInterval(editInterval); editInterval = null; }
     }
 
-    // Use current position (from ruler tick if paused)
-    const ct = editAudio.currentTime;
+    var ct = editAudio.currentTime;
     if(isNaN(ct)) return;
 
     editIdx = -1;
     editAdding = true;
-    this.disabled = true;
+    addBtn.disabled = true;
 
-    const mins = Math.floor(ct/60), secs = ct % 60;
+    var mins = Math.floor(ct/60), secs = ct % 60;
     document.getElementById('almTime').textContent = String(mins).padStart(2,'0') + ':' + String(secs).padStart(2,'0').substring(0,5);
     document.getElementById('almInput').value = '';
     document.getElementById('almInput').dataset.time = ct;
@@ -1148,11 +1046,11 @@ document.getElementById('tlDone').addEventListener('click', function() {
   if(editInterval) { clearInterval(editInterval); editInterval = null; }
   editPlaying = false;
   saveLyrics(editTrackId, editLines);
-  renderTracks().then(() => {
+  renderTracks().then(function() {
     document.querySelector('[data-tab="player"]').click();
-    const items = document.querySelectorAll('#playerList .track-item');
-    for(const el of items) {
-      if(parseInt(el.dataset.id) === parseInt(editTrackId)) { el.click(); break; }
+    var items = document.querySelectorAll('#playerList .track-item');
+    for(var i=0; i<items.length; i++) {
+      if(String(items[i].dataset.id) === String(editTrackId)) { items[i].click(); break; }
     }
   });
 });
@@ -1189,28 +1087,61 @@ document.getElementById('helpToggle').addEventListener('click', function() {
 // ===== ARTIST BIO =====
 function refreshBioSelect() {
   const sel = document.getElementById('bioTrackSelect');
-  getAllTracks().then(all => {
+  allTracks().then(function(all) {
     const prev = sel.value;
     sel.innerHTML = '<option value="">— Select track —</option>';
-    all.forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.title; sel.appendChild(o); });
-    if(prev && [...sel.options].some(o=>o.value===prev)) sel.value = prev;
-    if(sel.value) { const t = all.find(x => x.id == sel.value); document.getElementById('bioText').value = (t && t.bio) || ''; }
+    all.forEach(function(t) { var o = document.createElement('option'); o.value = t.id; o.textContent = t.title; sel.appendChild(o); });
+    if(prev && [...sel.options].some(function(o){ return o.value===prev; })) sel.value = prev;
+    if(sel.value) { 
+      var t = all.find(function(x) { return x.id == sel.value; });
+      if (String(sel.value).indexOf('gh_') === 0) {
+        if (FB_ENABLED) {
+          var slug = (t && t.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+          RTDB.ref('bios/' + slug).once('value').then(function(snap) {
+            document.getElementById('bioText').value = snap.val() || '';
+          }).catch(function(){});
+        }
+      } else {
+        document.getElementById('bioText').value = (t && t.bio) || '';
+      }
+    }
   });
 }
 document.getElementById('bioTrackSelect').addEventListener('change', function() {
   if(!this.value) { document.getElementById('bioText').value = ''; return; }
-  getAllTracks().then(all => {
-    const t = all.find(x => x.id == this.value);
+  if (String(this.value).indexOf('gh_') === 0) {
+    var track = githubTracks.find(function(t){ return t.id === this.value; }.bind(this));
+    if (track && FB_ENABLED) {
+      var slug = track.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+      RTDB.ref('bios/' + slug).once('value').then(function(snap) {
+        document.getElementById('bioText').value = snap.val() || '';
+      }).catch(function(){});
+    }
+    return;
+  }
+  getAllTracks().then(function(all) {
+    var t = all.find(function(x) { return x.id == this.value; }.bind(this));
     document.getElementById('bioText').value = (t && t.bio) || '';
-  });
+  }.bind(this));
 });
 document.getElementById('bioSave').addEventListener('click', function() {
-  const id = document.getElementById('bioTrackSelect').value;
+  var id = document.getElementById('bioTrackSelect').value;
   if(!id) return;
-  const bio = document.getElementById('bioText').value.trim();
-  getAllTracks().then(all => {
-    const t = all.find(x => x.id == id);
-    if(t) { t.bio = bio; updateTrack(t.id, t).then(() => { this.textContent = 'Saved!'; setTimeout(() => this.textContent = 'Save Bio', 1500); refreshBioSelect(); }); }
+  var bio = document.getElementById('bioText').value.trim();
+  if (String(id).indexOf('gh_') === 0) {
+    var track = githubTracks.find(function(t){ return t.id === id; });
+    if (track && FB_ENABLED) {
+      var slug = track.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'unknown';
+      RTDB.ref('bios/' + slug).set(bio).then(function() {
+        document.getElementById('bioSave').textContent = 'Saved!';
+        setTimeout(function(){ document.getElementById('bioSave').textContent = 'Save Bio'; }, 1500);
+      }).catch(function(){});
+    }
+    return;
+  }
+  getAllTracks().then(function(all) {
+    var t = all.find(function(x) { return x.id == id; });
+    if(t) { t.bio = bio; updateTrack(t.id, t).then(function() { document.getElementById('bioSave').textContent = 'Saved!'; setTimeout(function(){ document.getElementById('bioSave').textContent = 'Save Bio'; }, 1500); refreshBioSelect(); }); }
   });
 });
 
@@ -1253,190 +1184,7 @@ document.getElementById('resetBtn').addEventListener('click',function(){
   if(confirm('Reset console? Deletes all tracks.')){openDB().then(db=>{db.transaction('tracks','readwrite').objectStore('tracks').clear();db.close();}).then(()=>location.reload());}
 });
 
-// ===== UNLOCK EVENTS =====
-document.getElementById('unlockBtn').addEventListener('click', function() {
-  doUnlock(document.getElementById('unlockInput').value, false);
-});
-document.getElementById('unlockInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') doUnlock(this.value, false);
-});
 
-const accessUnlockBtn = document.getElementById('accessUnlockBtn');
-const accessUnlockInput = document.getElementById('accessUnlockInput');
-if (accessUnlockBtn) {
-  accessUnlockBtn.addEventListener('click', function() {
-    doUnlock(document.getElementById('accessUnlockInput').value, true);
-  });
-}
-if (accessUnlockInput) {
-  accessUnlockInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') accessUnlockBtn.click();
-  });
-}
-
-// IntaSend payment
-var intasendKey = localStorage.getItem('tyrelm_intasend_key') || '';
-document.getElementById('intasendKey').value = intasendKey;
-
-document.getElementById('intasendSaveBtn').addEventListener('click', function() {
-  intasendKey = document.getElementById('intasendKey').value.trim();
-  localStorage.setItem('tyrelm_intasend_key', intasendKey);
-  alert('IntaSend key saved!');
-});
-
-function startPayment(plan, amount, btn) {
-  var statusEl = document.getElementById('payStatus');
-  if (!statusEl) statusEl = document.getElementById('unlockError');
-  if (!intasendKey) { statusEl.textContent = 'Set IntaSend key in Console first'; return; }
-  if (typeof window.IntaSend === 'undefined') { statusEl.textContent = 'IntaSend SDK not loaded'; return; }
-  btn.textContent = 'Processing...'; btn.disabled = true;
-  var payer = new window.IntaSend({
-    publicAPIKey: intasendKey,
-    live: true
-  });
-  payer.run({
-    amount: amount,
-    currency: "KES",
-    email: "customer@gamechanger.app",
-    first_name: "Game",
-    last_name: "Changer",
-    country: "KE"
-  })
-  .on("COMPLETE", function(resp) {
-    // Payment succeeded - assign a code
-    var code = generateAndAssignCode(plan);
-    if (code) {
-      statusEl.textContent = 'Payment confirmed! Your code: ' + code;
-      statusEl.style.color = 'var(--green)';
-    } else {
-      statusEl.textContent = 'Payment confirmed! No codes available. Contact admin.';
-      statusEl.style.color = 'var(--gold)';
-    }
-    btn.textContent = 'Paid!';
-  })
-  .on("FAILED", function() {
-    statusEl.textContent = 'Payment failed or cancelled. Try again.';
-    statusEl.style.color = '#ff6b6b';
-    btn.textContent = 'Buy 1 ' + (plan==='1day'?'Day':plan==='1week'?'Week':'Month') + ' — ' + amount + ' KES';
-    btn.disabled = false;
-  })
-  .on("IN-PROGRESS", function() {
-    statusEl.textContent = 'Check your phone for M-Pesa prompt...';
-    statusEl.style.color = 'var(--gold)';
-  });
-}
-
-function generateAndAssignCode(plan) {
-  if (!FB_ENABLED) return null;
-  // Find an unused code in Firebase for this plan
-  var ref = RTDB.ref('codes');
-  var result = null;
-  ref.orderByChild('used').equalTo(false).limitToFirst(1).once('value', function(snap) {
-    var found = null;
-    snap.forEach(function(child) {
-      if (child.val().plan === plan) {
-        found = child.key;
-      }
-    });
-    if (found) {
-      ref.child(found).update({ used: true, usedAt: firebase.database.ServerValue.TIMESTAMP, paid: true });
-      result = found;
-    }
-  });
-  // Wait for result - use callback
-  return null; // placeholder - will be replaced below
-}
-
-// Simple approach: show code after payment
-var pendingCodes = {};
-function getPendingCode(plan) {
-  if (!FB_ENABLED) return null;
-  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  var code = '';
-  for (var i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  RTDB.ref('codes/' + code).set({ plan: plan, used: false, createdAt: firebase.database.ServerValue.TIMESTAMP, paid: true });
-  return code;
-}
-
-document.querySelectorAll('.pay-btn').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    var plan = this.dataset.plan;
-    var amount = parseInt(this.dataset.amount);
-    var planLabel = plan === '1day' ? 'Day' : plan === '1week' ? 'Week' : 'Month';
-    var statusEl = document.getElementById('payStatus') || document.getElementById('unlockError');
-    if (!intasendKey) {
-      statusEl.textContent = 'Set IntaSend key in Console first';
-      statusEl.style.color = '#ff6b6b';
-      return;
-    }
-    if (typeof window.IntaSend === 'undefined') {
-      statusEl.textContent = 'SDK not loaded. Check internet.';
-      statusEl.style.color = '#ff6b6b';
-      return;
-    }
-    statusEl.textContent = '';
-    var self = this;
-    self.textContent = 'Processing...'; self.disabled = true;
-    var payer = new window.IntaSend({
-      publicAPIKey: intasendKey,
-      live: true
-    });
-    payer.run({
-      amount: amount,
-      currency: "KES",
-      email: "customer@gamechanger.app",
-      first_name: "Game",
-      last_name: "Changer",
-      country: "KE"
-    })
-    .on("COMPLETE", function() {
-      var code = getPendingCode(plan);
-      if (FB_ENABLED && code) {
-        // Auto-unlock
-        RTDB.ref('codes/' + code).once('value').then(function(snap) {
-          if (snap.exists()) {
-            setUnlocked(plan);
-            statusEl.innerHTML = 'Paid! Code: <strong>' + code + '</strong> — app unlocked';
-            statusEl.style.color = 'var(--green)';
-            setTimeout(function() { location.reload(); }, 3000);
-          }
-        });
-      } else {
-        statusEl.textContent = 'Payment confirmed! Contact admin for your code.';
-        statusEl.style.color = 'var(--gold)';
-      }
-      self.textContent = 'Pay ' + amount + ' KES';
-      self.disabled = false;
-    })
-    .on("FAILED", function() {
-      statusEl.textContent = 'Payment cancelled. Try again.';
-      statusEl.style.color = '#ff6b6b';
-      self.textContent = 'Buy 1 ' + planLabel + ' — ' + amount + ' KES';
-      self.disabled = false;
-    })
-    .on("IN-PROGRESS", function() {
-      statusEl.textContent = 'Check your phone for M-Pesa prompt...';
-      statusEl.style.color = 'var(--gold)';
-    });
-  });
-});
-
-// Code generation (admin)
-document.getElementById('genCodeBtn').addEventListener('click', function() {
-  const plan = document.getElementById('codePlanSelect').value;
-  if (!FB_ENABLED) { alert('Firebase not connected'); return; }
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let code = '';
-  for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
-  RTDB.ref('codes/' + code).set({ plan: plan, used: false, createdAt: firebase.database.ServerValue.TIMESTAMP }).then(() => {
-    document.getElementById('genCodeValue').textContent = code;
-    document.getElementById('genCodeResult').classList.add('show');
-  }).catch(() => { alert('Failed to save code'); });
-});
-document.getElementById('genCodeCopy').addEventListener('click', function() {
-  const code = document.getElementById('genCodeValue').textContent;
-  navigator.clipboard.writeText(code).catch(() => {});
-});
 
 // ===== NAV =====
 document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',function(){
@@ -1456,11 +1204,11 @@ document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',func
 
 function refreshLyricSelect() {
   const sel = document.getElementById('lyricTrackSelect');
-  getAllTracks().then(uploaded => {
+  allTracks().then(function(all) {
     const prevVal = sel.value;
     sel.innerHTML = '<option value="">— Select a track —</option>';
-    uploaded.forEach(t => { const o = document.createElement('option'); o.value = t.id; o.textContent = t.title + (t.syncedLyrics&&t.syncedLyrics.length ? ' (lyrics)' : ''); sel.appendChild(o); });
-    if(prevVal&&[...sel.options].some(o=>o.value===prevVal)) {
+    all.forEach(function(t) { var o = document.createElement('option'); o.value = t.id; o.textContent = t.title + (t.syncedLyrics&&t.syncedLyrics.length ? ' (lyrics)' : ''); sel.appendChild(o); });
+    if(prevVal&&[...sel.options].some(function(o){ return o.value===prevVal; })) {
       sel.value=prevVal;
       sel.dispatchEvent(new Event('change'));
     }
@@ -1469,11 +1217,11 @@ function refreshLyricSelect() {
 
 // ===== STATS =====
 function updateStats() {
-  getAllTracks().then(u => {
-    document.getElementById('statTracks').textContent = u.length;
-    document.getElementById('statUploads').textContent = u.length;
+  allTracks().then(function(all) {
+    document.getElementById('statTracks').textContent = all.length;
+    document.getElementById('statUploads').textContent = all.length;
     if (FB_ENABLED) {
-      getFirebasePlays().then(n => {
+      getFirebasePlays().then(function(n) {
         if (n !== null) document.getElementById('statPlays').textContent = n;
       });
     } else {
@@ -1482,40 +1230,65 @@ function updateStats() {
   });
 }
 
-// Load server tracks in listener mode
+// Hardcoded fallback tracks in case tracks.json fails to load
+var FALLBACK_TRACKS = [
+  {title:"FALL BACK", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/FALL%20BACK.m4a"},
+  {title:"BROKEN DIARY LETTERS", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/BROKEN%20DIARY%20LETTERS.m4a"},
+  {title:"ALL OF ME", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/ALL%20OF%20ME.m4a"},
+  {title:"BROKEN LOVE STORY", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/BROKEN%20LOVE%20STORY.m4a"},
+  {title:"EMPTY PROMISES", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/EMPTY%20PROMISES.m4a"},
+  {title:"FRIDAY NIGHTS", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/FRIDAY%20NIGHTS.m4a"},
+  {title:"BROKEN DIARY OUTRO", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/BROKEN%20DIARY%20EP/BROKEN%20DIARY%20OUTRO.m4a"},
+  {title:"24/7", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/24-7.m4a"},
+  {title:"BIG PICKLE", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/BIG%20PICKLE.m4a"},
+  {title:"CIRCLE OF LOVE", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/CIRCLE%20OF%20LOVE.m4a"},
+  {title:"COME CLOSER", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/COME%20CLOSER.m4a"},
+  {title:"DANGEROUS", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/DANGEROUS.m4a"},
+  {title:"GAMECHANGER", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/GAMECHANGER.m4a"},
+  {title:"MAGIC", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/MAGIC.m4a"},
+  {title:"MIAMI", artist:"Tyrelm", url:"https://cdn.jsdelivr.net/gh/tyrelmnation/Tyrelm@main/TIME%20AND%20SPACE%20ALBUM/MIAMI.m4a"}
+];
+function normalizeAudioUrl(url) {
+  if (!url) return url;
+  var m = url.match(/^https?:\/\/raw\.githubusercontent\.com\/([^\/]+)\/([^\/]+)\/([^\/]+)\/(.+)$/i);
+  if (m) {
+    return 'https://cdn.jsdelivr.net/gh/' + m[1] + '/' + m[2] + '@' + m[3] + '/' + m[4];
+  }
+  return url;
+}
+function tracksFromList(list) {
+  return (list||[]).map(function(item, idx){ return {
+    id: 'gh_' + idx,
+    title: item.title,
+    artist: item.artist || '',
+    audioUrl: normalizeAudioUrl(item.url),
+    coverUrl: normalizeAudioUrl(item.coverUrl || null),
+    bio: item.bio || '',
+    syncedLyrics: item.syncedLyrics || [],
+    lyrics: null,
+    type: 'github'
+  }; });
+}
+// Load server tracks — in-memory, stream from GitHub
 function loadServerTracks() {
-  fetch('tracks.json').then(r=>r.json()).then(list=>{
-    if(!list||!list.length) return;
-    getAllTracks().then(existing=>{
-      const existingTitles = new Set(existing.map(t=>t.title.toLowerCase()));
-      list.forEach(async item => {
-        if(!existingTitles.has(item.title.toLowerCase())) {
-          try {
-            const resp = await fetch(item.url);
-            const blob = await resp.blob();
-            const file = new File([blob], item.title+'.mp3', {type:'audio/mpeg'});
-            await saveTrack({
-              title:item.title, type:'audio', artist:item.artist||'',
-              bio:item.bio||'', audioData:file, audioUrl:URL.createObjectURL(file),
-              coverData:null, coverUrl:null, lyrics:null, syncedLyrics:item.syncedLyrics||[],
-              uploaded:Date.now(), plays:0
-            });
-          } catch(e) {}
-        }
-      });
-      renderTracks();
-    });
-  }).catch(()=>{});
+  return fetch('tracks.json').then(function(r){ return r.json(); }).then(function(list){
+    githubTracks = tracksFromList(list);
+  }).catch(function(){
+    // Fallback to hardcoded list
+    githubTracks = tracksFromList(FALLBACK_TRACKS);
+  });
 }
 
 // ===== INIT =====
-checkAccess();
-if(IS_LISTENER) loadServerTracks();
-renderTracks(); updateStats();
+loadServerTracks().then(function() {
+  renderTracks().then(function() { updateStats(); });
+});
 
-// Service worker for offline support
+// Unregister any old service workers
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js');
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r){ r.unregister(); });
+  });
 }
 </script>
 </body>
